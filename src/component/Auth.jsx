@@ -19,6 +19,7 @@ import Register from "./Register";
 import Login from "./login";
 import Logout from "./Logout";
 import AuthContext from "../context/AuthContext";
+import MiniProfile from "./MiniProfile";
 
 const style = {
   position: "absolute",
@@ -71,13 +72,14 @@ const Auth = () => {
   return (
     <>
     {
-      (!isValid) ?(
+      (!isValid.status) ?(
         <Button onClick={toggleLoginModal} variant="text">
         Login
       </Button>
       ):
       (
-        <Logout/>
+
+        <MiniProfile/>
       )
       
     }
