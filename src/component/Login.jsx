@@ -2,7 +2,6 @@ import { Alert, Box, Button, Snackbar, TextField, Typography } from "@mui/materi
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import AuthContext from "../context/AuthContext";
 import PropTypes from "prop-types";
 
@@ -37,12 +36,9 @@ const Login = ({onSuccess}) => {
       try {
         const response = await axios.post(`${API_URL}/api/auth/login`, data);
         const token = response.headers["x-auth-token"];
-        localStorage.setItem("token", token);
         console.log(response)
-        const decoded = jwtDecode(token);
-        console.log(decoded);
         setAlert({open:true, message : response.data?.message, severity : "success"})
-        login();
+        login(token);
         onSuccess();
       } catch (error) {
         console.error("Login failed", error);

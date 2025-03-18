@@ -1,8 +1,14 @@
 import { Box, Grid2, Typography } from '@mui/material';
 import { jwtDecode } from 'jwt-decode';
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 
 const ProfileCard = () => {
+  const{logout} = useContext(AuthContext);
   const decodedToken = jwtDecode(localStorage.getItem('token'));
+  const handleLogout = () => {
+    logout()
+  }
   console.log(decodedToken);
   return (
     <Box sx={{ p: 0.5, border: '1px solid rgb(210, 29, 29)', borderRadius: 2, maxWidth: 300, maxHeight: 50 }}>
@@ -33,11 +39,13 @@ const ProfileCard = () => {
         </Grid2>
         <Grid2 item textAlign={'start'}>
           <Typography
+            onClick={handleLogout}
             variant="body2"
             color="error"
+            component="span"
             sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
           >
-            Logout
+            logout
           </Typography>
         </Grid2>
       </Grid2>

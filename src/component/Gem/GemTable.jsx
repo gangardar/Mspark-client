@@ -63,9 +63,7 @@ GemTable.propTypes = {
                 rarity: PropTypes.string,
                 status: PropTypes.string.isRequired,
                 price: PropTypes.number,
-                merchantId: PropTypes.shape({
-                    fullName: PropTypes.string,
-                }),
+                merchantId: PropTypes.string.isRequired,
             })
         ),
     }),

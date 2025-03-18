@@ -7,6 +7,8 @@ import { AdminLayout } from "../layouts/AdminLayout";
 import DashboardPage from "../pages/AdminPages/DashboardPage";
 import GemPage from "../pages/AdminPages/GemPage";
 import MerchantListPage from "../pages/AdminPages/MerchantListPage";
+import UserDashboardPage from "../pages/UserPages/UserDashboardPage";
+import Register from "../component/Gem/Register";
 
 const route = createBrowserRouter([
     {
@@ -40,6 +42,24 @@ const route = createBrowserRouter([
             {
                 path : 'merchant/all',
                 element : <MerchantListPage/>
+            }
+        ]
+    },
+    {
+        path : '/dashboard/:user/',
+        element : <AdminLayout isAdmin={false}/>,
+        errorElement : <NotFound/>,
+        children : [
+            {
+                index : true,
+                element : <UserDashboardPage/>
+            },
+            {
+                path : 'gem/all',
+                element: <GemPage />
+            },{
+                path : 'gem/register',
+                element : <Register/>
             }
         ]
     },

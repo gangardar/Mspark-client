@@ -7,7 +7,7 @@ const Logo = () => {
       <IconButton size="large" edge="start" color="inherit" aria-label="logo">
         <CatchingPokemon />
       </IconButton>
-      <Typography component="div" variant="h5" sx={{ flexGrow: 1 }}>
+      <Typography component="a" href="/" variant="h5" sx={{ flexGrow: 1, textDecoration:'none' }}>
         Mspark
       </Typography>
     </>
