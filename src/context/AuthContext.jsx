@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
         try {
           // Decode the token (optional, for debugging or validation)
           const decodedToken = jwtDecode(token);
-          console.log("Decoded token:", decodedToken);
 
           // Make the API call to validate the token
           await axios.get(`${endpoint}/api/auth/me`, {
@@ -30,7 +29,6 @@ export const AuthProvider = ({ children }) => {
           // If the API call succeeds, set isValid to true and store the token
           setIsValid({ status: true, token });
         } catch (error) {
-          console.error("Error validating token:", error);
           // If the API call fails, set isValid to false and clear the token
           setIsValid({ status: false, token: "" });
           localStorage.removeItem("token"); // Clear invalid token from localStorage

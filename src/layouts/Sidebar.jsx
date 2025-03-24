@@ -1,4 +1,4 @@
-import { CheckCircle, Dashboard, Diamond, ListAlt, People, ShoppingCart } from "@mui/icons-material";
+import { Assignment, CheckCircle, Dashboard, Diamond, ListAlt, People, ShoppingCart } from "@mui/icons-material";
 import {
   Box,
   Collapse,
@@ -84,6 +84,12 @@ const Sidebar = () => {
                   <ListAlt />
                 </ListItemIcon>
                 <ListItemText primary="All Gems" />
+              </ListItem>
+              <ListItem button component="a" href="/admin/gems/assigned">
+                <ListItemIcon>
+                  <Assignment/>
+                </ListItemIcon>
+                <ListItemText primary="Assigned Gems" />
               </ListItem>
               <ListItem button component="a" href="/admin/gems/verified">
                 <ListItemIcon>

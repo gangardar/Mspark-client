@@ -53,7 +53,7 @@ class ApiClient {
   }
 
   async update(id, data) {
-    const res = await axiosInstance.post(`${this.endpoint}/${id}`, data);
+    const res = await axiosInstance.put(`${this.endpoint}/${id}`, data);
     return res.data;
   }
 
@@ -64,6 +64,13 @@ class ApiClient {
 
   async restoreDelete(id){
     const res = await axiosInstance.put(`${this.endpoint}/${id}/restore`);
+    return res.data;
+  }
+
+  async deleteImg(id, url) {
+    const res = await axiosInstance.delete(`${this.endpoint}/image/${id}`, {
+      data: { url }, // Send the URL in the request body
+    });
     return res.data;
   }
 }

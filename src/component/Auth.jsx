@@ -1,23 +1,13 @@
 /* eslint-disable no-unused-vars */
 import {
-  Alert,
   Box,
   Button,
-  Modal,
-  Snackbar,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
+  Modal, Tab,
+  Tabs
 } from "@mui/material";
-import CheckIcon from '@mui/icons-material/Check';
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import React, { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useContext, useState } from "react";
 import Register from "./Register";
 import Login from "./login";
-import Logout from "./Logout";
 import AuthContext from "../context/AuthContext";
 import MiniProfile from "./MiniProfile";
 
@@ -38,53 +28,17 @@ const Auth = () => {
 
   const toggleLoginModal = () => setLoginModal(!loginModal);
   const [activeTab, setActiveTab] = useState(0);
-  const{isValid, login, logout} = useContext(AuthContext)
-
-    // Check token validity on component mount and whenever the token changes
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                const expirationTime = decoded.exp * 1000; // Convert to milliseconds
-                if (Date.now() < expirationTime) {
-                    login(); // Token is valid
-                } else {
-                    logout(); // Token is expired
-                    localStorage.removeItem('token'); // Remove expired token
-                }
-            } catch (error) {
-                console.error('Error decoding token:', error);
-                logout(); // Token is invalid
-                localStorage.removeItem('token'); // Remove invalid token
-            }
-        } else {
-            logout(); // No token found
-        }
-    }, []);
-
-    const handleLogout = () => {
-      localStorage.removeItem("token"); // Remove token
-      logout();
-    };
-
+  const { isValid, login, logout } = useContext(AuthContext);
 
   return (
     <>
-    {
-      (!isValid.status) ?(
+      {!isValid.status ? (
         <Button onClick={toggleLoginModal} variant="text">
-        Login
-      </Button>
-      ):
-      (
-
-        <MiniProfile/>
-      )
-      
-    }
-    
-      
+          Login
+        </Button>
+      ) : (
+        <MiniProfile />
+      )}
 
       {/* Login and Register modal */}
       <Modal
@@ -102,15 +56,9 @@ const Auth = () => {
             <Tab label="Register" />
           </Tabs>
 
-          {activeTab === 0 && (
-            <Login onSuccess={() => setLoginModal(false)} />
-          )}
+          {activeTab === 0 && <Login onSuccess={() => setLoginModal(false)} />}
 
-          {activeTab === 1 && (
-            <Register role="merchant"/>
-          )}
-
-          
+          {activeTab === 1 && <Register role="merchant" />}
         </Box>
       </Modal>
     </>

@@ -1,11 +1,10 @@
 import { jwtDecode } from "jwt-decode";
-import useGemByMerchantId from "../../react-query/services/hooks/gems/useGemByMerchantId";
-import useGem from "../../react-query/services/hooks/gems/useGem";
 import GemTable from "../../component/Gem/GemTable";
 import { useContext } from "react";
 import AuthContext from "../../context/AuthContext";
+import useGemByVerifierId from "../../react-query/services/hooks/gems/useGemByVerifierId";
 
-const GemPage = () => {
+const AssignedGemPage = () => {
   const { isValid } = useContext(AuthContext);
   console.log(isValid);
 
@@ -25,30 +24,14 @@ const GemPage = () => {
     }
   }
 
-  // Fetch data conditionally based on the user's role
   const {
-    data: adminData,
-    isLoading: isAdminLoading,
-    isError: isAdminError,
-    error: adminError,
-  } = useGem(1, 10, {
-    enabled: isAdmin, // Only fetch if the user is an admin
-  });
-
-  const {
-    data: merchantData,
-    isLoading: isMerchantLoading,
-    isError: isMerchantError,
-    error: merchantError,
-  } = useGemByMerchantId(merchantId, 1, 10, {
+    data ,
+    isLoading ,
+    isError ,
+    error,
+  } = useGemByVerifierId(merchantId, 1, 10, {
     enabled: !isAdmin && !!merchantId, // Only fetch if the user is not an admin and merchantId is available
   });
-
-  // Determine which data to use based on the user's role
-  const data = isAdmin ? adminData : merchantData;
-  const isLoading = isAdmin ? isAdminLoading : isMerchantLoading;
-  const isError = isAdmin ? isAdminError : isMerchantError;
-  const error = isAdmin ? adminError : merchantError;
 
   // Handle loading and error states
   if (isLoading) return <div>Loading...</div>;
@@ -62,4 +45,4 @@ const GemPage = () => {
   );
 };
 
-export default GemPage;
+export default AssignedGemPage;

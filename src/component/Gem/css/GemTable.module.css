@@ -1,0 +1,17 @@
+/* GemTable.module.css */
+@media print {
+    .printContainer button {
+      display: none;
+    }
+    .printContainer .MuiPaper-root {
+      border: none !important;
+      box-shadow: none !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      page-break-after: always;
+    }
+    .printContainer .MuiTypography-root {
+      color: #000 !important;
+    }
+  }

@@ -9,64 +9,76 @@ import GemPage from "../pages/AdminPages/GemPage";
 import MerchantListPage from "../pages/AdminPages/MerchantListPage";
 import UserDashboardPage from "../pages/UserPages/UserDashboardPage";
 import Register from "../component/Gem/Register";
+import AssignedGemPage from "../pages/UserPages/AssignedGemPage";
+import VerificationPage from "../pages/AdminPages/VerificationPage";
 
 const route = createBrowserRouter([
-    {
-        path : '/',
-        element : <Layout/>,
-        errorElement : <NotFound/>,
-        children: [
-            {
-            index : true,
-            element : <Home/>
-            },
-            {
-                path : 'RegisterGem',
-                element: <RegisterGem/>
-            }
-        ]
-    },
-    {
-        path : '/admin',
-        element : <AdminLayout/>,
-        errorElement : <NotFound/>,
-        children : [
-            {
-                index : true,
-                element: <DashboardPage/>
-            },
-            {
-                path : 'gems/all',
-                element : <GemPage/>
-            },
-            {
-                path : 'merchant/all',
-                element : <MerchantListPage/>
-            }
-        ]
-    },
-    {
-        path : '/dashboard/:user/',
-        element : <AdminLayout isAdmin={false}/>,
-        errorElement : <NotFound/>,
-        children : [
-            {
-                index : true,
-                element : <UserDashboardPage/>
-            },
-            {
-                path : 'gem/all',
-                element: <GemPage />
-            },{
-                path : 'gem/register',
-                element : <Register/>
-            }
-        ]
-    },
-    {
-        path : "*",
-        element: <NotFound/>
-    }
+  {
+    path: "/",
+    element: <Layout />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "RegisterGem",
+        element: <RegisterGem />,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout isAdmin={true} />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
+      {
+        path: "gems/all",
+        element: <GemPage />,
+      },
+      {
+        path : "gems/assigned",
+        element :<AssignedGemPage/>
+      },
+      {
+        path : "gems/verify/:id",
+        element :<VerificationPage/>
+      },
+      {
+        path: "merchant/all",
+        element: <MerchantListPage />,
+      },
+    ],
+  },
+  {
+    path: "/dashboard/:user/",
+    element: <AdminLayout isAdmin={false} />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <UserDashboardPage />,
+      },
+      {
+        path: "gem/all",
+        element: <GemPage />,
+      },
+      {
+        path: "gem/register",
+        element: <Register />,
+      },
+      
+    ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
 
-export default route
+export default route;
