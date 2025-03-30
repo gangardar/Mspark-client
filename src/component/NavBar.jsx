@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import React from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import Auth from "./Auth";
 import PropTypes from "prop-types";
@@ -18,13 +19,14 @@ import { jwtDecode } from "jwt-decode";
 import { Menu } from "@mui/icons-material";
 import Logo from "./Logo";
 
-const NavLink = ({ to, children }) => {
+const NavLink = React.forwardRef(({ to, children }, ref) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <MuiLink
       component={RouterLink}
+      ref={ref}
       to={to}
       sx={{
         color: "inherit",
@@ -43,12 +45,14 @@ const NavLink = ({ to, children }) => {
       {children}
     </MuiLink>
   );
-};
+});
 
 NavLink.propTypes = {
   to: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
+
+NavLink.displayName = "NavLink"
 
 const Navbar = () => {
   const { isValid } = useContext(AuthContext);
