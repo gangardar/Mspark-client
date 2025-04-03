@@ -73,6 +73,11 @@ class ApiClient {
     });
     return res.data;
   }
+
+  async bid(id, auction) {
+    const res = await axiosInstance.post(`${this.endpoint}/${id}/bid`, auction);
+    return res.data;
+  }
 }
 
 export default ApiClient;

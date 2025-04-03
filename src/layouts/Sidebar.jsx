@@ -15,6 +15,7 @@ const Sidebar = () => {
 
   const [openGems, setOpenGems] = useState(false);
   const [openMerchant, setOpenMerchant] = useState(false);
+  const [openAuction, setOpenAuction] = useState(false);
 
   return (
     <>
@@ -84,6 +85,38 @@ const Sidebar = () => {
                   <ListAlt />
                 </ListItemIcon>
                 <ListItemText primary="All Gems" />
+              </ListItem>
+              <ListItem button component="a" href="/admin/gems/assigned">
+                <ListItemIcon>
+                  <Assignment/>
+                </ListItemIcon>
+                <ListItemText primary="Assigned Gems" />
+              </ListItem>
+              <ListItem button component="a" href="/admin/gems/verified">
+                <ListItemIcon>
+                  <CheckCircle />
+                </ListItemIcon>
+                <ListItemText primary="Verified Gems" />
+              </ListItem>
+              <ListItem button component="a" href="/admin/gems/sold">
+                <ListItemIcon>
+                  <ShoppingCart />
+                </ListItemIcon>
+                <ListItemText primary="Sold Gems" />
+              </ListItem>
+            </List>
+          </Collapse>
+          <ListItem button onClick={() => setOpenAuction(!openAuction)}>
+                <ListItemIcon><Diamond /></ListItemIcon>
+                <ListItemText primary="Auctions" />
+            </ListItem>
+          <Collapse in={openAuction} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding sx={{ pl: 4 }}>
+              <ListItem button component="a" href="/admin/auctions/active">
+                <ListItemIcon>
+                  <ListAlt />
+                </ListItemIcon>
+                <ListItemText primary="Active Auctions" />
               </ListItem>
               <ListItem button component="a" href="/admin/gems/assigned">
                 <ListItemIcon>

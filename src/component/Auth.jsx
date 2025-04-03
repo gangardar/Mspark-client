@@ -5,11 +5,12 @@ import {
   Modal, Tab,
   Tabs
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Register from "./Register";
 import Login from "./login";
 import AuthContext from "../context/AuthContext";
 import MiniProfile from "./MiniProfile";
+import { useSearchParams } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -24,8 +25,12 @@ const style = {
 };
 
 const Auth = () => {
+  let [searchParams, setSearchParams] = useSearchParams();
   const [loginModal, setLoginModal] = useState(false);
-
+  useEffect(() => {
+    setLoginModal(searchParams.get('role') ? true : false);
+  }, [searchParams]);
+  const role = searchParams.get('role')
   const toggleLoginModal = () => setLoginModal(!loginModal);
   const [activeTab, setActiveTab] = useState(0);
   const { isValid, login, logout } = useContext(AuthContext);
@@ -58,7 +63,7 @@ const Auth = () => {
 
           {activeTab === 0 && <Login onSuccess={() => setLoginModal(false)} />}
 
-          {activeTab === 1 && <Register role="merchant" />}
+          {activeTab === 1 && <Register role={role} />}
         </Box>
       </Modal>
     </>

@@ -18,7 +18,7 @@ const UserTable = ({ data }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.users?.map((user) => (
+          {data?.data?.map((user) => (
             <TableRow key={user._id}>
               <TableCell>{user.fullName}</TableCell>
               <TableCell>{user.username}</TableCell>
@@ -51,7 +51,7 @@ const UserTable = ({ data }) => {
 // PropTypes validation
 UserTable.propTypes = {
 data: PropTypes.shape({
-        users: PropTypes.arrayOf(
+        data: PropTypes.arrayOf(
             PropTypes.shape({
                 _id: PropTypes.string.isRequired,
                 fullName: PropTypes.string.isRequired,

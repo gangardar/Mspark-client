@@ -11,6 +11,11 @@ import UserDashboardPage from "../pages/UserPages/UserDashboardPage";
 import Register from "../component/Gem/Register";
 import AssignedGemPage from "../pages/UserPages/AssignedGemPage";
 import VerificationPage from "../pages/AdminPages/VerificationPage";
+import ViewAllAuctions from "../pages/AuctionsPages/ViewAllAuctions";
+import AuctionDetailPage from "../pages/AuctionsPages/AuctionDetailPage";
+import { BidHistoryPage } from "../pages/AuctionsPages/BidHistoryPage";
+import NewAuctionPage from "../pages/AuctionsPages/NewAuctionPage";
+import ActiveAuctionPage from "../pages/AdminPages/Auctions/ActiveAuctionPage";
 
 const route = createBrowserRouter([
   {
@@ -25,6 +30,14 @@ const route = createBrowserRouter([
       {
         path: "RegisterGem",
         element: <RegisterGem />,
+      },
+      {
+        path: "auctions",
+        element: <ViewAllAuctions />,
+      },
+      {
+        path: "auction-detail/:id",
+        element: <AuctionDetailPage />,
       },
     ],
   },
@@ -53,6 +66,10 @@ const route = createBrowserRouter([
         path: "merchant/all",
         element: <MerchantListPage />,
       },
+      {
+        path: "auctions/active",
+        element: <ActiveAuctionPage />,
+      },
     ],
   },
   {
@@ -72,6 +89,19 @@ const route = createBrowserRouter([
         path: "gem/register",
         element: <Register />,
       },
+      {
+        path: "auction/bid",
+        element: <BidHistoryPage />,
+      },
+      {
+        path: "auction/new-auction",
+        element: <NewAuctionPage />,
+      },
+      {
+        path: "auction/active",
+        element: <ActiveAuctionPage />,
+      },
+      
       
     ],
   },

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useQueries } from "@tanstack/react-query";
 
 const formStyle = {
     display: "flex",
@@ -17,7 +18,7 @@ const formStyle = {
     mt:2
   };
 
-const Register = (role) => {
+const Register = (role = "bidder") => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [alert, setAlert] = useState({
     open: false,
@@ -88,6 +89,7 @@ const Register = (role) => {
       <TextField
         label="Password"
         type="password"
+        autoComplete="new-password"
         variant="outlined"
         {...register("password", {
           required: "Password is required",

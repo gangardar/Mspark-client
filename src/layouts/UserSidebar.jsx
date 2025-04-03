@@ -1,4 +1,10 @@
-import { CheckCircle, Dashboard, Diamond, ListAlt, People, ShoppingCart } from "@mui/icons-material";
+import {
+  CheckCircle,
+  Dashboard,
+  Diamond,
+  ListAlt,
+  ShoppingCart,
+} from "@mui/icons-material";
 import {
   Box,
   Collapse,
@@ -8,14 +14,47 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom"; // Import Link and useParams
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom"; // Import Link and useParams
 import Logo from "../component/Logo";
+import AuthContext from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const UserSidebar = () => {
+  const { isValid } = useContext(AuthContext);
   const [openGems, setOpenGems] = useState(false);
-  const [openMerchant, setOpenMerchant] = useState(false);
-  const { user } = useParams(); // Get the `:user` parameter from the URL
+  const [openAuction, setOpenAuction] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const { user } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only run auth checks once isValid has potential values
+    if (isValid === undefined) return;
+
+    // If we have a token, verify it
+    if (isValid?.token) {
+      try {
+        const decoded = jwtDecode(isValid.token);
+        setUserData(decoded);
+        const role = decoded?.role;
+
+        // Validate role
+        if (role !== "merchant" && role !== "bidder") {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Token decoding failed:", error);
+        navigate("/login");
+      }
+    }
+
+    // Mark auth as checked
+    setAuthChecked(true);
+  }, [isValid, navigate]);
+
+  if (!authChecked) return <div>Loading authentication...</div>;
 
   return (
     <>
@@ -30,10 +69,11 @@ const UserSidebar = () => {
           },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", alignSelf: "center" }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", alignSelf: "center" }}
+        >
           <Logo />
         </Box>
-
         <List>
           <ListItem button component={Link} to={`/dashboard/${user}`}>
             <ListItemIcon>
@@ -41,33 +81,51 @@ const UserSidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button component={Link} to={`/dashboard/${user}/bidder`}>
-            <ListItemIcon>
-              <People />
-            </ListItemIcon>
-            <ListItemText primary="Bidder" />
-          </ListItem>
-          <ListItem button onClick={() => setOpenMerchant(!openMerchant)}>
-            <ListItemIcon>
-              <People />
-            </ListItemIcon>
-            <ListItemText primary="Merchant" />
-          </ListItem>
-          <Collapse in={openMerchant} timeout="auto" unmountOnExit>
+          {userData?.role === "merchant" && (
+            <ListItem button onClick={() => setOpenGems(!openGems)}>
+              <ListItemIcon>
+                <Diamond />
+              </ListItemIcon>
+              <ListItemText primary="Gems" />
+            </ListItem>
+          )}
+          <Collapse in={openGems} timeout="auto" unmountOnExit>
             <List component="div" disablePadding sx={{ pl: 4 }}>
-              <ListItem button component={Link} to={`/dashboard/${user}/merchant/all`}>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/gem/all`}
+              >
                 <ListItemIcon>
                   <ListAlt />
                 </ListItemIcon>
                 <ListItemText primary="All Gems" />
               </ListItem>
-              <ListItem button component={Link} to={`/dashboard/${user}/merchant/verified`}>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/gem/register`}
+              >
+                <ListItemIcon>
+                  <ListAlt />
+                </ListItemIcon>
+                <ListItemText primary="Register Gem" />
+              </ListItem>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/gems/verified`}
+              >
                 <ListItemIcon>
                   <CheckCircle />
                 </ListItemIcon>
                 <ListItemText primary="Verified Gems" />
               </ListItem>
-              <ListItem button component={Link} to={`/dashboard/${user}/merchant/sold`}>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/gems/sold`}
+              >
                 <ListItemIcon>
                   <ShoppingCart />
                 </ListItemIcon>
@@ -75,37 +133,67 @@ const UserSidebar = () => {
               </ListItem>
             </List>
           </Collapse>
-          <ListItem button onClick={() => setOpenGems(!openGems)}>
+          <ListItem button onClick={() => setOpenAuction(!openAuction)}>
             <ListItemIcon>
               <Diamond />
             </ListItemIcon>
-            <ListItemText primary="Gems" />
+            <ListItemText primary="Auctions" />
           </ListItem>
-          <Collapse in={openGems} timeout="auto" unmountOnExit>
+          <Collapse in={openAuction} timeout="auto" unmountOnExit>
             <List component="div" disablePadding sx={{ pl: 4 }}>
-              <ListItem button component={Link} to={`/dashboard/${user}/gem/all`}>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/auction/active`}
+              >
                 <ListItemIcon>
                   <ListAlt />
                 </ListItemIcon>
-                <ListItemText primary="All Gems" />
+                <ListItemText primary="All Active Auction" />
               </ListItem>
-              <ListItem button component={Link} to={`/dashboard/${user}/gem/register`}>
+              {userData?.role === "merchant" && (
+                <ListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/auction/new-auction`}
+                >
+                  <ListItemIcon>
+                    <ShoppingCart />
+                  </ListItemIcon>
+                  <ListItemText primary="New Auction" />
+                </ListItem>
+              )}
+              {userData?.role === "bidder" && (
+                <ListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/auction/bid`}
+                >
+                  <ListItemIcon>
+                    <ShoppingCart />
+                  </ListItemIcon>
+                  <ListItemText primary="Bid History" />
+                </ListItem>
+              )}
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/auction/active`}
+              >
                 <ListItemIcon>
                   <ListAlt />
                 </ListItemIcon>
-                <ListItemText primary="Register Gem" />
+                <ListItemText primary="Active Gem" />
               </ListItem>
-              <ListItem button component={Link} to={`/dashboard/${user}/gems/verified`}>
-                <ListItemIcon>
-                  <CheckCircle />
-                </ListItemIcon>
-                <ListItemText primary="Verified Gems" />
-              </ListItem>
-              <ListItem button component={Link} to={`/dashboard/${user}/gems/sold`}>
+              <ListItem
+                button
+                component={Link}
+                to={`/dashboard/${user}/auction/completed`}
+              >
                 <ListItemIcon>
                   <ShoppingCart />
                 </ListItemIcon>
-                <ListItemText primary="Sold Gems" />
+                <ListItemText primary="Completed Auctions" />
               </ListItem>
             </List>
           </Collapse>

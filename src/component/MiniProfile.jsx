@@ -23,7 +23,7 @@ const ProfileCard = () => {
             }}
           >
             <img
-              src="src/resources/exampleProfile.jpeg"
+              src="/src/resources/exampleProfile.jpeg"
               alt="Profile Picture"
               style={{ width: '100%', height: '100%', objectFit: 'fit' }}
             />
