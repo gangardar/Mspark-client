@@ -9,7 +9,6 @@ const ProfileCard = () => {
   const handleLogout = () => {
     logout()
   }
-  console.log(decodedToken);
   return (
     <Box sx={{ p: 0.5, border: '1px solid rgb(210, 29, 29)', borderRadius: 2, maxWidth: 300, maxHeight: 50 }}>
       <Grid2 container justifyItems='center' alignItems="center" spacing={2}>

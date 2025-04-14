@@ -113,7 +113,7 @@ const GemTable = ({ data }) => {
                     </Button>
                   </TableCell>
                 )}
-                {user.role === "admin" && gem?.verifierId ? (
+                {(user.role === "admin" && gem?.verifierId) && (
                   <TableCell>
                     {gem?.status === "Pending" ? (
                       <Button
@@ -128,8 +128,6 @@ const GemTable = ({ data }) => {
                       "No Action"
                     )}
                   </TableCell>
-                ) : (
-                  "Not Assigned"
                 )}
                 <TableCell>
                   <Button

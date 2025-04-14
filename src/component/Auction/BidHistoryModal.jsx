@@ -82,7 +82,7 @@ const BidHistoryModal = ({
           {winningBid && (
             <Chip
               icon={<TrophyIcon fontSize="small" />}
-              label={`Winning: $${winningBid.bidAmount.toLocaleString()}`}
+              label={`Winning: $${winningBid?.bidAmount?.toLocaleString()}`}
               color="success"
               variant="outlined"
               size="small"
@@ -105,7 +105,7 @@ BidHistoryModal.propTypes = {
   bids: PropTypes.array,
   currentPrice: PropTypes.number,
   startingPrice: PropTypes.number,
-  auctionEndTime: PropTypes.string.isRequired
+  auctionEndTime: PropTypes.string
 };
 
 export default BidHistoryModal;

@@ -42,12 +42,10 @@ const Register = () => {
   });
   const [images, setImages] = useState([]);
   const [showFullImage, setShowFullImage] = useState({ show: false, url: "" });
-  const {mutateAsync} = useRegisterGem();
-
+  const { mutateAsync } = useRegisterGem();
 
   const toggleDimension = () => setShowDimension(!showDimension);
 
-  
   const handleFileChange = (event) => {
     const files = event.target.files;
     if (files) {
@@ -82,21 +80,21 @@ const Register = () => {
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-  
+
       // Append non-file fields
       formData.append("status", data.status);
       formData.append("name", data.name);
       formData.append("type", data.type);
       formData.append("color", data.color);
       formData.append("weight", data.weight);
-  
+
       // Append files (convert FileList to array and append each file)
       if (data.images && data.images.length > 0) {
         Array.from(data.images).forEach((file) => {
           formData.append("images", file); // Use "images" as the field name
         });
       }
-  
+
       // Send the request
       const result = await mutateAsync(formData);
       console.log("Gem registered successfully:", result);
@@ -109,37 +107,46 @@ const Register = () => {
     <>
       <Container sx={{ mt: 3 }}>
         <Dialog
-          open={showFullImage.show} // Control dialog visibility
-          onClose={handleImageClose} // Handle dialog close
-          maxWidth="md" // Set maximum width for the dialog
-          fullWidth // Make the dialog responsive
+          open={showFullImage.show}
+          onClose={handleImageClose}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              overflow: "hidden",
+              maxHeight: "90vh",
+            },
+          }}
         >
-          {/* Dialog Title with Close Button */}
-          <DialogTitle>
-            Full Image
-            <IconButton
-              aria-label="close"
-              onClick={handleImageClose}
-              sx={{
-                position: "absolute",
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              pb: 1,
+            }}
+          >
+            <Typography variant="h6">Image Preview</Typography>
+            <IconButton onClick={handleImageClose}>
               <Close />
             </IconButton>
           </DialogTitle>
-
-          {/* Dialog Content with Image */}
-          <DialogContent>
+          <DialogContent
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 0,
+            }}
+          >
             <img
-              src={showFullImage?.url} // Image URL
-              alt="Full Size"
+              src={showFullImage?.url}
+              alt="Full Size Preview"
               style={{
-                width: "100%", // Make image responsive
-                height: "auto", // Maintain aspect ratio
-                objectFit: "fill", // Ensure the image fits within the container
+                maxWidth: "100%",
+                maxHeight: "calc(90vh - 64px)",
+                objectFit: "contain",
+                display: "block",
               }}
             />
           </DialogContent>
@@ -160,25 +167,34 @@ const Register = () => {
               height: "auto",
               alignSelf: "flex-start",
               my: 3,
+              p: 2,
+              width: "100%", // Make container full width
+              maxWidth: "400px", // But limit maximum width
             }}
             size={4}
           >
+            {/* Image Upload Box */}
             <Box
               component="div"
               sx={{
-                borderRadius: 5,
-                width: "70%",
-                height: "15rem",
-                bgcolor: "yellow",
-                my: 3,
+                borderRadius: 2,
+                width: "100%",
+                height: "200px", // Fixed height
+                bgcolor: "grey.100", // Lighter background
+                border: "2px dashed",
+                borderColor: "grey.400",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
                 cursor: "pointer",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  bgcolor: "grey.200",
+                },
               }}
             >
-              {/* Hidden file input */}
               <input
                 type="file"
                 id="file-upload"
@@ -188,23 +204,27 @@ const Register = () => {
                 onInput={handleFileChange}
                 {...register("images")}
               />
-              {/* Icon and label */}
               <label htmlFor="file-upload">
                 <IconButton component="span">
-                  <AddPhotoAlternate sx={{ fontSize: 100, color: "gray" }} />
+                  <AddPhotoAlternate sx={{ fontSize: 50, color: "grey.600" }} />
                 </IconButton>
               </label>
-              <Typography variant="body1" color="textSecondary">
-                Add Photos
+              <Typography variant="body1" color="text.secondary">
+                Click to upload images
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                (Max 5 images)
               </Typography>
             </Box>
+
+            {/* Thumbnail Preview Grid */}
             <Box
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
-                alignItems: "left",
-                gap: 1,
+                gap: 1.5,
                 my: 2,
+                justifyContent: "center",
               }}
             >
               {images.map((image, index) => (
@@ -212,8 +232,16 @@ const Register = () => {
                   key={index}
                   sx={{
                     position: "relative",
-                    width: "50px",
-                    height: "50px",
+                    width: "80px", // Fixed width
+                    height: "80px", // Fixed height
+                    borderRadius: 1,
+                    overflow: "hidden",
+                    boxShadow: 1,
+                    transition: "transform 0.2s",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      boxShadow: 3,
+                    },
                   }}
                 >
                   <img
@@ -224,28 +252,32 @@ const Register = () => {
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                      borderRadius: "4px",
+                      cursor: "pointer",
                     }}
                   />
-                  {/* Red cross button */}
+                  {/* Remove Button */}
                   <IconButton
                     sx={{
                       position: "absolute",
-                      top: 0,
-                      right: 0,
-                      padding: 0,
-                      color: "red",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      width: "16px",
-                      height: "16px",
+                      top: 4,
+                      right: 4,
+                      padding: 0.5,
+                      backgroundColor: "rgba(255,255,255,0.8)",
                       "&:hover": {
-                        backgroundColor: "white",
+                        backgroundColor: "rgba(255,255,255,0.9)",
                       },
                     }}
-                    onClick={() => handleRemoveImage(index)} // Remove image on click
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(index);
+                    }}
                   >
-                    <Cancel sx={{ fontSize: "14px" }} />
+                    <Cancel
+                      sx={{
+                        fontSize: "16px",
+                        color: "error.main",
+                      }}
+                    />
                   </IconButton>
                 </Box>
               ))}

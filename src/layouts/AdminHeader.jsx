@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <AppBar position="fixed" >
       <Toolbar>
-        <Typography variant="h6" marginLeft={'100px'} noWrap>
+        <Typography variant="h6" noWrap>
           Admin Panel
         </Typography>
       </Toolbar>

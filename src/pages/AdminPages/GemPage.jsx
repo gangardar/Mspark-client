@@ -4,6 +4,7 @@ import useGem from "../../react-query/services/hooks/gems/useGem";
 import GemTable from "../../component/Gem/GemTable";
 import { useContext } from "react";
 import AuthContext from "../../context/AuthContext";
+import { Typography } from "@mui/material";
 
 const GemPage = () => {
   const { isValid } = useContext(AuthContext);
@@ -40,7 +41,7 @@ const GemPage = () => {
     isLoading: isMerchantLoading,
     isError: isMerchantError,
     error: merchantError,
-  } = useGemByMerchantId(merchantId, 1, 10, {
+  } = useGemByMerchantId({merchantId, page : 1, limit : 10}, {
     enabled: !isAdmin && !!merchantId, // Only fetch if the user is not an admin and merchantId is available
   });
 
@@ -56,7 +57,9 @@ const GemPage = () => {
 
   return (
     <div>
-      <h3>Gem Page</h3>
+      <Typography variant="h5" component="h2">
+          All Gem
+        </Typography>
       <GemTable data={data} />
     </div>
   );

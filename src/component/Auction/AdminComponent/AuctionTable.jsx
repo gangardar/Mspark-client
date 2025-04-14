@@ -68,8 +68,8 @@ const AuctionTable = () => {
 
     return auctions.data.map((auction) => {
       const endingIn = readableDateDifference({
-        start: auction.createdAt,
-        end: auction.endTime,
+        start : auction.endTime,
+        end: new Date(),
       });
 
       return {

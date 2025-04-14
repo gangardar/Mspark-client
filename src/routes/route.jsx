@@ -16,6 +16,15 @@ import AuctionDetailPage from "../pages/AuctionsPages/AuctionDetailPage";
 import { BidHistoryPage } from "../pages/AuctionsPages/BidHistoryPage";
 import NewAuctionPage from "../pages/AuctionsPages/NewAuctionPage";
 import ActiveAuctionPage from "../pages/AdminPages/Auctions/ActiveAuctionPage";
+import { NewWalletPage } from "../pages/Wallet/NewWalletPage";
+import { AddAddressPage } from "../pages/UserPages/AddAddressPage";
+import { ProfilePage } from "../pages/UserPages/ProfilePage";
+import { AllPayment } from "../pages/PaymentPages/AllPayment";
+import FailedPayment from "../pages/PaymentPages/FailedPayment";
+import PendingPayment from "../pages/PaymentPages/PendingPayment";
+import SoldGemForMerchantPage from "../pages/GemPages/SoldGemForMerchantPage";
+import VerifiedGemForMerchantPage from "../pages/GemPages/VerifiedGemForMerchantPage";
+import AuctionsPageUser from "../pages/AuctionsPages/merchant/AuctionsPageUser";
 
 const route = createBrowserRouter([
   {
@@ -43,7 +52,7 @@ const route = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout isAdmin={true} />,
+    element: <AdminLayout isAdmin={true}/>,
     errorElement: <NotFound />,
     children: [
       {
@@ -74,7 +83,7 @@ const route = createBrowserRouter([
   },
   {
     path: "/dashboard/:user/",
-    element: <AdminLayout isAdmin={false} />,
+    element: <AdminLayout />,
     errorElement: <NotFound />,
     children: [
       {
@@ -90,6 +99,14 @@ const route = createBrowserRouter([
         element: <Register />,
       },
       {
+        path: "gem/verified",
+        element: <VerifiedGemForMerchantPage />,
+      },
+      {
+        path: "gem/sold",
+        element: <SoldGemForMerchantPage />,
+      },
+      {
         path: "auction/bid",
         element: <BidHistoryPage />,
       },
@@ -98,13 +115,45 @@ const route = createBrowserRouter([
         element: <NewAuctionPage />,
       },
       {
-        path: "auction/active",
-        element: <ActiveAuctionPage />,
+        path: "auction/all",
+        element: <AuctionsPageUser />,
       },
+      {
+        path: "auction/active",
+        element: <AuctionsPageUser auctionStatus={"active"} />,
+      },
+      {
+        path: "auction/completed",
+        element: <AuctionsPageUser auctionStatus={"completed"} />,
+      },
+      {
+        path: "payment/all",
+        element: <AllPayment />,
+      },
+      {
+        path: "payment/pending",
+        element: <PendingPayment />,
+      },
+      {
+        path: "payment/failed",
+        element: <FailedPayment />,
+      },
+      {
+        path : "account-setting",
+        element : <NewWalletPage/>      
+      },
+      {
+        path : "address",
+        element : <AddAddressPage/>      
+      },
+      {
+        path : "profile",
+        element : <ProfilePage/>      
+      }
       
       
     ],
-  },
+  },  
   {
     path: "*",
     element: <NotFound />,

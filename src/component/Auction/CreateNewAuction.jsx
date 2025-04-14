@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form";
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -19,6 +21,7 @@ import useGemByMerchantId from "../../react-query/services/hooks/gems/useGemByMe
 import useAddAuction from "../../react-query/services/hooks/auctions/useAddAuction";
 import SnackbarContext from "../../context/SnackbarContext";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { Link } from "react-router-dom";
 
 const CreateNewAuction = () => {
   const { isValid } = useContext(AuthContext);
@@ -38,12 +41,19 @@ const CreateNewAuction = () => {
     data: gems,
     isLoading: gemsLoading,
     error: gemsError,
-  } = useGemByMerchantId( merchant?._id,{ enabled: !!merchant?._id });
+  } = useGemByMerchantId({merchantId: merchant?._id}, { enabled: !!merchant?._id });
 
-  const verifiedGem = gems?.data?.filter(gem => gem.status === "Verified")
+  const verifiedGem = gems?.data?.filter((gem) => gem.status === "Verified");
 
   // Mutation for adding auction
-  const { mutateAsync: addAuction, isLoading : isAdding, isError, isSuccess, data, error } = useAddAuction();
+  const {
+    mutateAsync: addAuction,
+    isLoading: isAdding,
+    isError,
+    isSuccess,
+    data,
+    error,
+  } = useAddAuction();
 
   useEffect(() => {
     if (isValid.status) {
@@ -52,20 +62,17 @@ const CreateNewAuction = () => {
     }
   }, [isValid]);
 
-  useEffect(()=> {
-    
-    if(isSuccess)
-        showSnackbar(data?.message, "info")
-        reset();
-  },[isSuccess])
+  useEffect(() => {
+    if (isSuccess) showSnackbar(data?.message, "info");
+    reset();
+  }, [isSuccess]);
 
-  useEffect(()=> {
-    console.log(error)
-    if(isError){
-        showSnackbar(error?.response?.data?.message, "error")
+  useEffect(() => {
+    console.log(error);
+    if (isError) {
+      showSnackbar(error?.response?.data?.message, "error");
     }
-    
-  },[isError])
+  }, [isError]);
 
   const onSubmit = (data) => {
     if (!endDate) {
@@ -73,20 +80,19 @@ const CreateNewAuction = () => {
       return;
     }
 
-    const formattedDate = endDate.toISOString()
+    const formattedDate = endDate.toISOString();
     const payload = {
       priceStart: Number(data.priceStart),
       endTime: formattedDate,
       gemId: data.gemId,
     };
 
-    addAuction({auction: payload});
+    addAuction({ auction: payload });
   };
 
   if (gemsLoading) return <Typography>Loading gems...</Typography>;
   if (gemsError)
     return <Typography>Error loading gems: {gemsError.message}</Typography>;
-  
 
   return (
     <Container maxWidth="sm">
@@ -128,7 +134,7 @@ const CreateNewAuction = () => {
             error={!!errors.priceStart}
             helperText={errors.priceStart?.message}
           />
-
+          <Box marginY={2}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
               label="Auction End Date & time"
@@ -146,6 +152,21 @@ const CreateNewAuction = () => {
               )}
             />
           </LocalizationProvider>
+          </Box>
+          <Box>
+            <FormControlLabel
+              control={<Checkbox required />}
+              label={
+                <Link
+                  to={`/dashboard/${merchant?.username}/profile`}
+                  underline="hover"
+                  color="inherit"
+                >
+                  I have registered my wallet.
+                </Link>
+              }
+            />
+          </Box>
 
           <Button
             type="submit"

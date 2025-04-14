@@ -162,7 +162,7 @@ const Auctions = () => {
                     color={auction.status === "active" ? "success" : "error"}
                   />
                   <Typography variant="caption">
-                    {auction?.bidders_id?.length} bids
+                    {auction?.bids?.length} bids
                   </Typography>
                 </Stack>
               </CardContent>
@@ -184,7 +184,7 @@ const Auctions = () => {
         ))}
       </Grid2>
         <Box component={'div'} sx={{display:"flex", justifyContent:'center', my:3}}>
-            <Pagination selcted size="large" page={page} onChange={handlePagnation} count={auctions?.meta?.pagination?.totalPages}/>
+            <Pagination selected size="large" page={page} onChange={handlePagnation} count={auctions?.meta?.pagination?.totalPages}/>
         </Box>
 
     </>

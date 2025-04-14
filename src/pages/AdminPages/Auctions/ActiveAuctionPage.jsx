@@ -1,4 +1,5 @@
-import AuctionTable from "../../../component/Auction/AuctionTable"
+import AuctionTable from "../../../component/Auction/AdminComponent/AuctionTable"
+
 
 const ActiveAuctionPage = () => {
   return (

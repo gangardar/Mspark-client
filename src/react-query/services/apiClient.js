@@ -34,6 +34,11 @@ class ApiClient {
     return res.data;
   }
 
+  async getData() {
+    const res = await axiosInstance.get(this.endpoint);
+    return res.data;
+  }
+
   async getByRole({ queryKey }) {
     const [{ page, limit, role }] = queryKey;
     const res = await axiosInstance.get(`${this.endpoint}/${role}`, {

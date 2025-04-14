@@ -15,6 +15,9 @@ import {
   TextField,
   InputAdornment,
   Chip,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import {
   MoreVert,
@@ -24,7 +27,6 @@ import {
   AccessTime,
 } from "@mui/icons-material";
 import { useContext, useEffect, useMemo, useState } from "react";
-import useAuctionByMerchant from "../../react-query/services/hooks/auctions/useAuctionByMerchant";
 import AuthContext from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import readableDateDifference from "../../react-query/services/utilities/readableDateDifference";
@@ -33,6 +35,10 @@ import useCancelAuction from "../../react-query/services/hooks/auctions/useCance
 import SnackbarContext from "../../context/SnackbarContext";
 import useActivateAuction from "../../react-query/services/hooks/auctions/useActivateAuction";
 import ExtendAuctionModal from "./ExtendAuctionModal";
+import useAuctionByUser from "../../react-query/services/hooks/auctions/useAuctionByUser";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+import { ErrorMessage } from "../common/ErrorMessage";
+import PropTypes from "prop-types";
 
 const statusColors = {
   active: "success",
@@ -41,12 +47,12 @@ const statusColors = {
   pending: "warning",
 };
 
-const AuctionTable = () => {
-  //   const { showSnackbar } = useContext(SnackbarContext);
+const AuctionTable = ({auctionStatus}) => {
   const backendLink = import.meta.env.VITE_API_URL;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState(auctionStatus || "all");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [showBidModal, setShowBidModal] = useState(false);
@@ -64,15 +70,29 @@ const AuctionTable = () => {
     setUserData(data);
   }, [isValid]);
 
-  // Fetch auctions with pagination
+  useEffect(() => {
+    setStatusFilter(auctionStatus || "all");
+    setPage(0); // Reset to first page when status filter changes
+  }, [auctionStatus]);
+
+  // Fetch auctions with pagination and filters
   const {
     data: auctions,
     isLoading,
     isError,
     refetch,
-  } = useAuctionByMerchant(
-    { id: userData?._id, page: page + 1, limit: rowsPerPage },
-    { enable: !!userData?.status }
+  } = useAuctionByUser(
+    { 
+      userData, 
+      page: page + 1, 
+      limit: rowsPerPage,
+      search: searchTerm,
+      status: statusFilter === "all" ? undefined : statusFilter
+    },
+    { 
+      enabled: !!userData?.status,
+      keepPreviousData: true 
+    }
   );
 
   const processedAuctions = useMemo(() => {
@@ -107,7 +127,7 @@ const AuctionTable = () => {
     setAnchorEl(null);
     setSelectedAuction(null);
     setShowBidModal(false);
-    setShowExtendModal(false)
+    setShowExtendModal(false);
   };
 
   const handleCancelAuction = async () => {
@@ -115,10 +135,10 @@ const AuctionTable = () => {
       cancelAuction(selectedAuction._id)
         .then(() => {
           refetch();
-          showSnackbar("Successful", "success");
+          showSnackbar("Auction cancelled successfully", "success");
         })
         .catch((err) => {
-          showSnackbar(err?.response?.data?.message, "warning");
+          showSnackbar(err?.response?.data?.message || "Failed to cancel auction", "error");
         });
     }
     handleMenuClose();
@@ -129,10 +149,10 @@ const AuctionTable = () => {
       activateAuction(selectedAuction._id)
         .then(() => {
           refetch();
-          showSnackbar("Successfully activated", "success");
+          showSnackbar("Auction activated successfully", "success");
         })
         .catch((err) => {
-          showSnackbar(err?.response?.data?.message, "error");
+          showSnackbar(err?.response?.data?.message || "Failed to activate auction", "error");
         });
     }
     handleMenuClose();
@@ -152,13 +172,18 @@ const AuctionTable = () => {
     setPage(0);
   };
 
-  const handleVieBid = () => {
+  const handleStatusFilterChange = (event) => {
+    setStatusFilter(event.target.value);
+    setPage(0);
+  };
+
+  const handleViewBids = () => {
     if (selectedAuction) setShowBidModal(true);
   };
 
   const handleExtendAuction = () => {
-    if(selectedAuction) setShowExtendModal(true);
-  }
+    if (selectedAuction) setShowExtendModal(true);
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -173,9 +198,8 @@ const AuctionTable = () => {
     }
   };
 
-  if (isLoading) return <Typography>Loading auctions...</Typography>;
-  if (isError)
-    return <Typography color="error">Error loading auctions</Typography>;
+  if (isLoading) return <LoadingSpinner message="Loading auctions..." />;
+  if (isError) return <ErrorMessage message="Failed to load auctions" />;
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -185,22 +209,41 @@ const AuctionTable = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
         }}
       >
         <Typography variant="h6">Auction Management</Typography>
-        <TextField
-          size="small"
-          placeholder="Search auctions..."
-          value={searchTerm}
-          onChange={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-        />
+
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+              label="Status"
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            size="small"
+            placeholder="Search auctions..."
+            value={searchTerm}
+            onChange={handleSearch}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
       </Box>
 
       <TableContainer sx={{ maxHeight: 600 }}>
@@ -220,73 +263,84 @@ const AuctionTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {processedAuctions?.map((auction) => (
-              <TableRow key={auction._id} hover>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {auction.gemId?.images?.[0] && (
-                      <img
-                        src={auction.gemId.images[0]}
-                        alt={auction.gemId.name}
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 4,
-                          marginRight: 8,
-                        }}
-                      />
-                    )}
-                    <Typography>{auction.gemId?.name}</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>{auction.merchantId?.username}</TableCell>
-                <TableCell>${auction.priceStart.toFixed(2)}</TableCell>
-                <TableCell>
-                  ${auction.currentPrice?.toFixed(2) || "0.00"}
-                </TableCell>
-                <TableCell>
-                  {new Date(auction.startTime).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  {new Date(auction.endTime).toLocaleString()}
-                </TableCell>
-                <TableCell>{auction.endingIn}</TableCell>
-                <TableCell>
-                  <Chip
-                    icon={getStatusIcon(auction.status)}
-                    label={auction.status}
-                    color={statusColors[auction.status] || "default"}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{auction.bids?.length || 0}</TableCell>
-                <TableCell>
-                  <IconButton
-                    aria-label="more"
-                    aria-controls="auction-menu"
-                    aria-haspopup="true"
-                    onClick={(e) => handleMenuOpen(e, auction)}
-                  >
-                    <MoreVert />
-                  </IconButton>
+            {processedAuctions?.length > 0 ? (
+              processedAuctions.map((auction) => (
+                <TableRow key={auction._id} hover>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      {auction.gemId?.images?.[0] && (
+                        <img
+                          src={auction.gemId.images[0]}
+                          alt={auction.gemId.name}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 4,
+                            marginRight: 8,
+                          }}
+                        />
+                      )}
+                      <Typography>{auction.gemId?.name}</Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{auction.merchantId?.username}</TableCell>
+                  <TableCell>${auction.priceStart.toFixed(2)}</TableCell>
+                  <TableCell>
+                    ${auction.currentPrice?.toFixed(2) || "0.00"}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(auction.startTime).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(auction.endTime).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{auction.endingIn}</TableCell>
+                  <TableCell>
+                    <Chip
+                      icon={getStatusIcon(auction.status)}
+                      label={auction.status}
+                      color={statusColors[auction.status] || "default"}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>{auction.bids?.length || 0}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      aria-label="more"
+                      aria-controls="auction-menu"
+                      aria-haspopup="true"
+                      onClick={(e) => handleMenuOpen(e, auction)}
+                    >
+                      <MoreVert />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={10} align="center">
+                  <Typography variant="body1" color="textSecondary">
+                    No auctions found
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={auctions?.meta?.pagination?.total || 0}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {auctions?.pagination?.total > 0 && (
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={auctions?.pagination?.total || 0}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
 
-      {/* Action Menu */}
       <Menu
         id="auction-menu"
         anchorEl={anchorEl}
@@ -294,30 +348,32 @@ const AuctionTable = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem
-          onClick={handleCancelAuction}
-          sx={{ display: selectedAuction?.status !== "active" && "none" }}
-          disabled={selectedAuction?.status !== "active"}
-        >
-          <Cancel fontSize="small" sx={{ mr: 1 }} />
-          Cancel Auction
-        </MenuItem>
+        {userData?.role === "merchant" && (
+          <MenuItem
+            onClick={handleCancelAuction}
+            disabled={selectedAuction?.status !== "active"}
+          >
+            <Cancel fontSize="small" sx={{ mr: 1 }} />
+            Cancel Auction
+          </MenuItem>
+        )}
         <MenuItem
           onClick={handleActivateAuction}
-          sx={{ display: selectedAuction?.status !== "cancelled" && "none" }}
           disabled={selectedAuction?.status !== "cancelled"}
         >
           <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} />
           Activate Auction
         </MenuItem>
-        <MenuItem
-          sx={{ display: selectedAuction?.status !== "active" && "none" }}
-          onClick={handleExtendAuction}
-        >
-          Extend Auction
-        </MenuItem>
+        {userData?.role === "merchant" && (
+          <MenuItem
+            onClick={handleExtendAuction}
+            disabled={selectedAuction?.status !== "active"}
+          >
+            Extend Auction
+          </MenuItem>
+        )}
         <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
-        <MenuItem onClick={handleVieBid}>View Bids</MenuItem>
+        <MenuItem onClick={handleViewBids}>View Bids</MenuItem>
       </Menu>
 
       <BidHistoryModal
@@ -329,13 +385,17 @@ const AuctionTable = () => {
         auctionEndTime={selectedAuction?.endTime}
       />
       <ExtendAuctionModal
-      open={showExtendModal}
-      onClose={handleMenuClose}
-      auction={selectedAuction}
-      refetchAuctions={refetch}
+        open={showExtendModal}
+        onClose={handleMenuClose}
+        auction={selectedAuction}
+        refetchAuctions={refetch}
       />
     </Paper>
   );
 };
+
+AuctionTable.propTypes = {
+  auctionStatus : PropTypes.string
+}
 
 export default AuctionTable;

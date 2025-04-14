@@ -36,7 +36,7 @@ const Home = () => {
         </Typography>
         <Grid2 container spacing={4} justifyContent="center">
           {/* Auction Card 1 */}
-          <Grid2 item xs={12} sm={6} md={4}>
+          <Grid2 xs={12} sm={6} md={4}>
             <Card sx={{ maxWidth: 280, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
               <CardMedia
                 component="img"
@@ -59,7 +59,7 @@ const Home = () => {
           </Grid2>
 
           {/* Auction Card 2 */}
-          <Grid2 item xs={12} sm={6} md={4}>
+          <Grid2 xs={12} sm={6} md={4}>
             <Card sx={{ maxWidth: 345, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
               <CardMedia
                 component="img"
@@ -82,7 +82,7 @@ const Home = () => {
           </Grid2>
 
           {/* Auction Card 3 */}
-          <Grid2 item xs={12} sm={6} md={4}>
+          <Grid2 xs={12} sm={6} md={4}>
             <Card sx={{ maxWidth: 280, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
               <CardMedia
                 component="img"

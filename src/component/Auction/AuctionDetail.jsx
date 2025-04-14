@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import {
   Container,
-  Grid,
+  Grid2,
   Card,
   CardMedia,
   Typography,
@@ -34,6 +34,8 @@ import BidHistory from "./BidHistory";
 import moment from "moment";
 import useBid from "../../react-query/services/hooks/auctions/useBid";
 import SnackbarContext from "../../context/SnackbarContext";
+import AuthContext from "../../context/AuthContext";
+import { axiosInstance } from "../../react-query/services/apiClient";
 
 const AuctionDetail = ({ auctionId }) => {
   const [auction, setAuction] = useState(null);
@@ -44,21 +46,21 @@ const AuctionDetail = ({ auctionId }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [isWatching, setIsWatching] = useState(false);
   const backendLink = import.meta.env.VITE_API_URL;
+  const {isValid} = useContext(AuthContext);
   const {
     mutateAsync: doBid,
     isError: isErrorBidding,
     error: bidError,
   } = useBid();
-  const {showSnackBar} = useContext(SnackbarContext);
+  const {showSnackbar} = useContext(SnackbarContext);
 
   useEffect(() => {
+    if(!isValid) return
     // Fetch auction data
     const fetchAuction = async () => {
       try {
-        const response = await fetch(
-          `${backendLink}/api/auctions/${auctionId}`
-        );
-        const data = await response.json();
+        const response = await axiosInstance.get(`/auctions/${auctionId}`)
+        const data = response.data
         const formattedData = {
           ...data.data,
           gemId: {
@@ -78,7 +80,7 @@ const AuctionDetail = ({ auctionId }) => {
     };
 
     fetchAuction();
-  }, [auctionId, backendLink]);
+  }, [auctionId, backendLink, isValid]);
 
   useEffect(() => {
     // Countdown timer
@@ -93,7 +95,7 @@ const AuctionDetail = ({ auctionId }) => {
           setTimeLeft("Auction ended");
         } else {
           setTimeLeft(
-            `${duration.days()}d ${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`
+            `${duration.months()}m ${duration.days()}d ${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`
           );
         }
       }, 1000);
@@ -151,14 +153,14 @@ const AuctionDetail = ({ auctionId }) => {
   }
 
   if(isErrorBidding){
-    showSnackBar(bidError.message)
+    showSnackbar(bidError.message)
   }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
+      <Grid2 container spacing={4} sx={{ display: 'flex', flexWrap: 'wrap' }}>
         {/* Left Column - Auction Images */}
-        <Grid item xs={12} md={6}>
+        <Grid2 xs={12} md={6} sx={{flexGrow: 1}}>
           <Card>
             <CardMedia
               component="img"
@@ -179,11 +181,11 @@ const AuctionDetail = ({ auctionId }) => {
               ))}
             </Box>
           </Card>
-        </Grid>
+        </Grid2>
 
         {/* Right Column - Auction Details */}
-        <Grid item xs={12} md={6}>
-          <Box sx={{ mb: 3 }}>
+        <Grid2 xs={12} md={6} sx={{flexGrow: 1}}>
+          <Box sx={{ mb: 3, maxWidth:'100%' }}>
             <Typography variant="h4" component="h1" gutterBottom>
               {auction.gemId.name}
             </Typography>
@@ -290,10 +292,10 @@ const AuctionDetail = ({ auctionId }) => {
               Contact Seller
             </Button>
           </Paper>
-        </Grid>
+        </Grid2>
 
         {/* Tabs Section */}
-        <Grid item xs={12}>
+        <Grid2 xs={12} sx={{ flexGrow: 1 }}>
           <Paper elevation={2}>
             <Tabs
               value={activeTab}
@@ -331,8 +333,8 @@ const AuctionDetail = ({ auctionId }) => {
               )}
             </Box>
           </Paper>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
 
       {/* Bid Dialog */}
       <Dialog open={openBidDialog} onClose={() => setOpenBidDialog(false)}>

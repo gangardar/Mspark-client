@@ -92,12 +92,15 @@ const Navbar = () => {
           >
             <NavLink to="/">Home</NavLink>
             <NavLink to="/auctions">Auctions</NavLink>
+            {isValid.status && tokenInfo.role === "admin" && (
+              <NavLink to="/admin">Admin Panel</NavLink>
+            )}
             {isValid.status && tokenInfo.role === "merchant" && (
-              <NavLink to="/gems">Gems</NavLink>
+              <NavLink to={`/dashboard/${tokenInfo?.role}/gems/all`}>Gems</NavLink>
             )}
             {isValid.status &&
               ["merchant", "bidder"].includes(tokenInfo.role) && (
-                <NavLink to="/payments">Payment</NavLink>
+                <NavLink to={`/dashboard/${tokenInfo?.username}/payment/all`}>Payment</NavLink>
               )}
             {isValid.status && (
               <NavLink to="/dashboard">Account & Settings</NavLink>

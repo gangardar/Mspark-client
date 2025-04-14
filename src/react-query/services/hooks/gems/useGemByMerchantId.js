@@ -1,15 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import ApiClient from "../../apiClient";
+import { axiosInstance } from "../../apiClient";
 
-const gemApiClient = new ApiClient('/gems/merchant');
-
-const useGemByMerchantId = (merchantId, page, limit) => {
+const useGemByMerchantId = ({merchantId, page =1 , limit=10, status}) => {
+  const fetchGem = async() => {
+    const response = await axiosInstance.get(`/gems/merchant/${merchantId}`,{
+      params : {
+        page, limit, status
+      }
+    })
+    return response.data
+  }
   return useQuery({
-    queryKey: ['gems', merchantId, page, limit], // Unique key for the query
-    queryFn: () => gemApiClient.getById(merchantId), // Correct API call
-    onError: (error) => {
-      console.error("Error fetching gems:", error); // Log errors for debugging
-    },
+    queryKey: ['gems', merchantId, page, limit, status], // Unique key for the query
+    queryFn: () => fetchGem() // Correct API call
   });
 };
 

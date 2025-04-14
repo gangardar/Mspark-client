@@ -1,12 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import ApiClient from "../../apiClient";
+import  { axiosInstance } from "../../apiClient";
 
-const auctionApiClient = new ApiClient('/bids');
-
-const useGetBidByBidderId = (id) => {
+const useGetBidByBidderId = ({id,page,limit,status}) => {
+  const fetchBid = async() => {
+    const response = await axiosInstance.get(`/bids/${id}`,{params : {
+      page,
+      limit,
+      status
+    }})
+    return response.data
+  }
   return useQuery({
-    queryKey: ['auctions-bid', id], // Unique key for the query
-    queryFn: () => auctionApiClient.getById(id)
+    queryKey: ['auctions-bid', id, page, limit, status], // Unique key for the query
+    queryFn: () => fetchBid()
   });
 };
 
