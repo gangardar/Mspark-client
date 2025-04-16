@@ -2,14 +2,16 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import PropTypes from "prop-types";
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext, useEffect, useContext } from "react";
 import { Navigate } from "react-router-dom";
+import SnackbarContext from "./SnackbarContext";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isValid, setIsValid] = useState({ status: false, token: "" }); // Default to false
   const [shouldRedirect, setShouldRedirect] = useState(false); //for rendering
+  const {showSnackbar} = useContext(SnackbarContext)
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -44,7 +46,7 @@ export const AuthProvider = ({ children }) => {
         
       } catch (error) {
         console.error("Token validation failed:", error);
-        
+        showSnackbar(error.message,"error")
         // Handle network errors with retry
         if (
           !error.response && // No response means network error
