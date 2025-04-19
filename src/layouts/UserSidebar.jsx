@@ -13,7 +13,12 @@ import {
   Pending,
   VerifiedUser,
   Sell,
-  Menu
+  Menu,
+  DeliveryDining,
+  LocalShipping,
+  AddBox,
+  Route,
+  PanTool,
 } from "@mui/icons-material";
 import {
   Box,
@@ -27,7 +32,7 @@ import {
   IconButton,
   Divider,
   Tooltip,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
@@ -40,8 +45,8 @@ const StyledListItem = styled(ListItem)(({ theme, selected }) => ({
   "&:hover": {
     backgroundColor: theme.palette.action.hover,
   },
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
+  whiteSpace: "nowrap",
+  overflow: "hidden",
 }));
 
 const UserSidebar = () => {
@@ -50,6 +55,7 @@ const UserSidebar = () => {
   const [openAuction, setOpenAuction] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [openDeliveries, setOpenDeliveries] = useState(false);
   const [userData, setUserData] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const { user } = useParams();
@@ -88,7 +94,7 @@ const UserSidebar = () => {
     }
 
     setAuthChecked(true);
-    
+
     // Set initial expanded state based on current path
     setOpenGems(isParentActive(`/dashboard/${user}/gem`));
     setOpenAuction(isParentActive(`/dashboard/${user}/auction`));
@@ -109,42 +115,48 @@ const UserSidebar = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          transition: theme.transitions.create('width', {
+          transition: theme.transitions.create("width", {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
           }),
-          overflowX: 'hidden',
+          overflowX: "hidden",
         },
       }}
     >
       <Box>
-        <Box sx={{ 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: collapsed ? "center" : "space-between",
-          p: 2,
-          minHeight: '64px'
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "space-between",
+            p: 2,
+            minHeight: "64px",
+          }}
+        >
           {!collapsed && <Logo />}
           <IconButton onClick={() => setCollapsed(!collapsed)}>
-            <Menu/>
+            <Menu />
           </IconButton>
         </Box>
         <Divider />
         <List>
           {/* Dashboard */}
-          <Tooltip title="Dashboard" placement="right" disableHoverListener={!collapsed}>
-            <StyledListItem 
-              button 
-              component={Link} 
+          <Tooltip
+            title="Dashboard"
+            placement="right"
+            disableHoverListener={!collapsed}
+          >
+            <StyledListItem
+              button
+              component={Link}
               to={`/dashboard/${user}`}
               selected={isActive(`/dashboard/${user}`)}
               sx={{
-                justifyContent: collapsed ? 'center' : 'initial',
+                justifyContent: collapsed ? "center" : "initial",
                 px: collapsed ? 2 : 3,
               }}
             >
-              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 56 }}>
+              <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
                 <Dashboard />
               </ListItemIcon>
               {!collapsed && <ListItemText primary="Dashboard" />}
@@ -154,23 +166,31 @@ const UserSidebar = () => {
           {/* Gems Section - Merchant Only */}
           {userData?.role === "merchant" && (
             <>
-              <Tooltip title="Gems" placement="right" disableHoverListener={!collapsed}>
-                <StyledListItem 
-                  button 
+              <Tooltip
+                title="Gems"
+                placement="right"
+                disableHoverListener={!collapsed}
+              >
+                <StyledListItem
+                  button
                   onClick={() => setOpenGems(!openGems)}
                   selected={isParentActive(`/dashboard/${user}/gem`)}
                   sx={{
-                    justifyContent: collapsed ? 'center' : 'initial',
+                    justifyContent: collapsed ? "center" : "initial",
                     px: collapsed ? 2 : 3,
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 56 }}>
+                  <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
                     <Diamond />
                   </ListItemIcon>
                   {!collapsed && <ListItemText primary="Gems" />}
                 </StyledListItem>
               </Tooltip>
-              <Collapse in={openGems && !collapsed} timeout="auto" unmountOnExit>
+              <Collapse
+                in={openGems && !collapsed}
+                timeout="auto"
+                unmountOnExit
+              >
                 <List component="div" disablePadding>
                   <Tooltip title="All Gems" placement="right">
                     <StyledListItem
@@ -234,17 +254,21 @@ const UserSidebar = () => {
           )}
 
           {/* Auctions Section */}
-          <Tooltip title="Auctions" placement="right" disableHoverListener={!collapsed}>
-            <StyledListItem 
-              button 
+          <Tooltip
+            title="Auctions"
+            placement="right"
+            disableHoverListener={!collapsed}
+          >
+            <StyledListItem
+              button
               onClick={() => setOpenAuction(!openAuction)}
               selected={isParentActive(`/dashboard/${user}/auction`)}
               sx={{
-                justifyContent: collapsed ? 'center' : 'initial',
+                justifyContent: collapsed ? "center" : "initial",
                 px: collapsed ? 2 : 3,
               }}
             >
-              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 56 }}>
+              <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
                 <Gavel />
               </ListItemIcon>
               {!collapsed && <ListItemText primary="Auctions" />}
@@ -288,7 +312,9 @@ const UserSidebar = () => {
                     button
                     component={Link}
                     to={`/dashboard/${user}/auction/new-auction`}
-                    selected={isActive(`/dashboard/${user}/auction/new-auction`)}
+                    selected={isActive(
+                      `/dashboard/${user}/auction/new-auction`
+                    )}
                     sx={{ pl: 4 }}
                   >
                     <ListItemIcon>
@@ -330,17 +356,21 @@ const UserSidebar = () => {
           </Collapse>
 
           {/* Payments Section */}
-          <Tooltip title="Payments" placement="right" disableHoverListener={!collapsed}>
-            <StyledListItem 
-              button 
+          <Tooltip
+            title="Payments"
+            placement="right"
+            disableHoverListener={!collapsed}
+          >
+            <StyledListItem
+              button
               onClick={() => setOpenPayment(!openPayment)}
               selected={isParentActive(`/dashboard/${user}/payment`)}
               sx={{
-                justifyContent: collapsed ? 'center' : 'initial',
+                justifyContent: collapsed ? "center" : "initial",
                 px: collapsed ? 2 : 3,
               }}
             >
-              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 56 }}>
+              <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
                 <Payment />
               </ListItemIcon>
               {!collapsed && <ListItemText primary="Payments" />}
@@ -396,23 +426,119 @@ const UserSidebar = () => {
               )}
             </List>
           </Collapse>
+
+          {/* Deliveries Routes */}
+          <Tooltip
+            title="Deliveries"
+            placement="right"
+            disableHoverListener={!collapsed}
+          >
+            <StyledListItem
+              button
+              onClick={() => setOpenDeliveries(!openDeliveries)}
+              selected={isParentActive("/admin/deliveries")}
+              sx={{
+                justifyContent: collapsed ? "center" : "initial",
+                px: collapsed ? 2 : 3,
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
+                <DeliveryDining />
+              </ListItemIcon>
+              {!collapsed && <ListItemText primary="Deliveries" />}
+            </StyledListItem>
+          </Tooltip>
+          <Collapse
+            in={openDeliveries && !collapsed}
+            timeout="auto"
+            unmountOnExit
+          >
+            <List component="div" disablePadding>
+              <Tooltip title="All Deliveries" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/deliveries/all`}
+                  selected={isActive(`/dashboard/${user}/deliveries/all`)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemIcon>
+                    <LocalShipping />
+                  </ListItemIcon>
+                  <ListItemText primary="All Deliveries" />
+                </StyledListItem>
+              </Tooltip>
+            </List>
+            <List component="div" disablePadding>
+              <Tooltip title="Create New" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/deliveries/create`}
+                  selected={isActive(`/dashboard/${user}/deliveries/create`)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemIcon>
+                    <AddBox />
+                  </ListItemIcon>
+                  <ListItemText primary="New Delivery" />
+                </StyledListItem>
+              </Tooltip>
+            </List>
+            <List component="div" disablePadding>
+              <Tooltip title="In Transit" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/deliveries/inTransit`}
+                  selected={isActive(`/dashboard/${user}/deliveries/inTransit`)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemIcon>
+                    <Route />
+                  </ListItemIcon>
+                  <ListItemText primary="In Transit" />
+                </StyledListItem>
+              </Tooltip>
+            </List>
+            <List component="div" disablePadding>
+              <Tooltip title="Pending" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to={`/dashboard/${user}/deliveries/pending`}
+                  selected={isActive(`/dashboard/${user}/deliveries/all`)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemIcon>
+                    <PanTool />
+                  </ListItemIcon>
+                  <ListItemText primary="Pending" />
+                </StyledListItem>
+              </Tooltip>
+            </List>
+          </Collapse>
         </List>
       </Box>
 
       {/* Profile Link at Bottom */}
       <List>
-        <Tooltip title="Profile" placement="right" disableHoverListener={!collapsed}>
+        <Tooltip
+          title="Profile"
+          placement="right"
+          disableHoverListener={!collapsed}
+        >
           <StyledListItem
             button
             component={Link}
             to={`/dashboard/${user}/profile`}
             selected={isActive(`/dashboard/${user}/profile`)}
             sx={{
-              justifyContent: collapsed ? 'center' : 'initial',
+              justifyContent: collapsed ? "center" : "initial",
               px: collapsed ? 2 : 3,
             }}
           >
-            <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 56 }}>
+            <ListItemIcon sx={{ minWidth: collapsed ? "auto" : 56 }}>
               <AccountCircle />
             </ListItemIcon>
             {!collapsed && <ListItemText primary="Profile" />}

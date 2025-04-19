@@ -20,11 +20,17 @@ import { NewWalletPage } from "../pages/Wallet/NewWalletPage";
 import { AddAddressPage } from "../pages/UserPages/AddAddressPage";
 import { ProfilePage } from "../pages/UserPages/ProfilePage";
 import { AllPayment } from "../pages/PaymentPages/AllPayment";
+import {DetailMsparkPage} from "../pages/AdminPages/Mspark/DetailMsparkPage";
 import FailedPayment from "../pages/PaymentPages/FailedPayment";
 import PendingPayment from "../pages/PaymentPages/PendingPayment";
 import SoldGemForMerchantPage from "../pages/GemPages/SoldGemForMerchantPage";
 import VerifiedGemForMerchantPage from "../pages/GemPages/VerifiedGemForMerchantPage";
 import AuctionsPageUser from "../pages/AuctionsPages/merchant/AuctionsPageUser";
+import AllDeliveriesPage from "../pages/DeliveryPages/AllDeliveriesPage";
+import CreateDeliveryPage from "../pages/DeliveryPages/CreateDeliveryPage";
+import PendingDeliveryPage from "../pages/DeliveryPages/PendingDeliveryPage";
+import TransitDeliveryPage from "../pages/DeliveryPages/TransitDeliveryPage";
+import { AllPaymentsPage } from "../pages/AdminPages/Payments/AllPaymentsPage";
 
 const route = createBrowserRouter([
   {
@@ -79,6 +85,50 @@ const route = createBrowserRouter([
         path: "auctions/active",
         element: <ActiveAuctionPage />,
       },
+      // Admin Payment Routes
+
+      {
+        path: "payment/all",
+        element: <AllPaymentsPage />,
+      },
+      {
+        path: "payment/pending",
+        element: <AllPaymentsPage status={"pending"} />,
+      },
+      {
+        path: "payment/failed",
+        element: <AllPaymentsPage status={"failed"}/>,
+      },
+      // Admin Delivery Routes
+      {
+        path: "deliveries/all",
+        element: <AllDeliveriesPage />,
+      },
+      {
+        path: "deliveries/create",
+        element: <CreateDeliveryPage />,
+      },
+      {
+        path: "deliveries/inTransit",
+        element: <TransitDeliveryPage />,
+      }, 
+      {
+        path: "deliveries/pending",
+        element: <PendingDeliveryPage />,
+      },      
+      {
+        path: "mspark",
+        children: [
+          {
+            index: true,
+            element: <DetailMsparkPage />,
+          },
+          {
+            path: 'detail',
+            element: <DetailMsparkPage/>
+          },
+        ]
+      },
     ],
   },
   {
@@ -126,6 +176,7 @@ const route = createBrowserRouter([
         path: "auction/completed",
         element: <AuctionsPageUser auctionStatus={"completed"} />,
       },
+      // User Payment Routes
       {
         path: "payment/all",
         element: <AllPayment />,
@@ -137,6 +188,23 @@ const route = createBrowserRouter([
       {
         path: "payment/failed",
         element: <FailedPayment />,
+      },
+      // User Delivery Routes
+      {
+        path: "deliveries/all",
+        element: <AllDeliveriesPage />,
+      },
+      {
+        path: "deliveries/create",
+        element: <CreateDeliveryPage />,
+      },
+      {
+        path: "deliveries/inTransit",
+        element: <TransitDeliveryPage />,
+      }, 
+      {
+        path: "deliveries/pending",
+        element: <PendingDeliveryPage />,
       },
       {
         path : "account-setting",

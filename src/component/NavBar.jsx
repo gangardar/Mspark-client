@@ -13,11 +13,10 @@ import React from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import Auth from "./Auth";
 import PropTypes from "prop-types";
-import { useContext, useState } from "react";
-import AuthContext from "../context/AuthContext";
-import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
 import { Menu } from "@mui/icons-material";
 import Logo from "./Logo";
+import useAuth from "../context/useAuth";
 
 const NavLink = React.forwardRef(({ to, children }, ref) => {
   const location = useLocation();
@@ -35,7 +34,7 @@ const NavLink = React.forwardRef(({ to, children }, ref) => {
         fontSize: "1rem",
         fontWeight: "bold",
         "&:hover": {
-          textDecoration: isActive ? "none" : "underline", // No underline if active on hover
+          textDecoration: isActive ? "none" : "underline",
         },
         ...(isActive && {
           color: "primary",
@@ -52,37 +51,70 @@ NavLink.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-NavLink.displayName = "NavLink"
+NavLink.displayName = "NavLink";
+
+// Role-based navigation items
+const getNavItems = (role, username) => {
+  const commonItems = [
+    { to: "/", label: "Home" },
+    { to: "/auctions", label: "Auctions" },
+  ];
+
+  const roleSpecificItems = {
+    admin: [{ to: "/admin", label: "Admin Panel" },
+      { to: `/admin/profile`, label: "Account & Settings"},
+    ],
+    merchant: [
+      { to: `/dashboard/${username}/gem/all`, label: "Gems" },
+      { to: `/dashboard/${username}/auction/all`, label: "Auctions" },
+      { to: `/dashboard/${username}/payment/all`, label: "Payments" },
+      { to: `/dashboard/${username}/profile`, label: "Account & Settings" },
+    ],
+    bidder: [
+      { to: `/dashboard/${username}/payment/all`, label: "Payments" },
+      { to: `/dashboard/${username}/auction/bid`, label: "My Bids" },
+      { to: `/dashboard/${username}/profile`, label: "Account & Settings" },
+    ],
+  };
+
+  return [...commonItems, ...(roleSpecificItems[role] || [])];
+};
 
 const Navbar = () => {
-  const { isValid } = useContext(AuthContext);
-  const [mobileOpen, setMobileOpen] = useState();
+  const { isValid, userData } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  let tokenInfo = "";
-  if (isValid.status) {
-    tokenInfo = jwtDecode(isValid.token);
-  }
+  // Get navigation items based on user role
+  const navItems = isValid.status
+    ? getNavItems(userData.role, userData.username)
+    : getNavItems();
+
   return (
     <>
       <AppBar position="static" sx={{ position: "fixed" }}>
-        <Toolbar sx={{flexDirection:{xs : 'row'}}} >
+        <Toolbar sx={{ flexDirection: { xs: "row" } }}>
+          {/* Mobile menu button */}
           <IconButton
             size="large"
-            edge="end"
+            edge="start"
             color="inherit"
             aria-label="menu"
             onClick={handleDrawerToggle}
-            sx={{ display: { xs: "block", sm: "none" } }} // Show only on mobile
+            sx={{ display: { xs: "block", md: "none" }, mr: 2 }}
           >
             <Menu />
           </IconButton>
+
+          {/* Logo */}
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-           <Logo/>
+            <Logo />
           </Box>
+
+          {/* Desktop navigation */}
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
@@ -90,34 +122,28 @@ const Navbar = () => {
               flexGrow: 1,
             }}
           >
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/auctions">Auctions</NavLink>
-            {isValid.status && tokenInfo.role === "admin" && (
-              <NavLink to="/admin">Admin Panel</NavLink>
-            )}
-            {isValid.status && tokenInfo.role === "merchant" && (
-              <NavLink to={`/dashboard/${tokenInfo?.role}/gems/all`}>Gems</NavLink>
-            )}
-            {isValid.status &&
-              ["merchant", "bidder"].includes(tokenInfo.role) && (
-                <NavLink to={`/dashboard/${tokenInfo?.username}/payment/all`}>Payment</NavLink>
-              )}
-            {isValid.status && (
-              <NavLink to="/dashboard">Account & Settings</NavLink>
-            )}
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to}>
+                {item.label}
+              </NavLink>
+            ))}
           </Box>
-          <Box sx={{display: { xs: "none", md: "flex" }}}>
-            <Auth/>
+
+          {/* Auth component */}
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            <Auth />
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* Mobile drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }} // Better performance on mobile
+        ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "flex", md: "none" }, // Show only on mobile
+          display: { xs: "flex", md: "none" },
           "& .MuiDrawer-paper": { boxSizing: "border-box", width: 250 },
         }}
       >
@@ -125,32 +151,16 @@ const Navbar = () => {
           sx={{ width: 250 }}
           role="presentation"
           onClick={handleDrawerToggle}
+          onKeyDown={handleDrawerToggle}
         >
           <List>
-            <ListItem button component={NavLink} to="/">
-              <ListItemText primary="Home" />
-            </ListItem>
-            <ListItem button component={NavLink} to="/auctions">
-              <ListItemText primary="Auctions" />
-            </ListItem>
-            {isValid.status && tokenInfo.role === "merchant" && (
-              <ListItem button component={NavLink} to="/gems">
-                <ListItemText primary="Gems" />
+            {navItems.map((item) => (
+              <ListItem button key={item.to} component={NavLink} to={item.to}>
+                <ListItemText primary={item.label} />
               </ListItem>
-            )}
-            {isValid.status &&
-              ["merchant", "bidder"].includes(tokenInfo.role) && (
-                <ListItem button component={NavLink} to="/payments">
-                  <ListItemText primary="Payment" />
-                </ListItem>
-              )}
-            {isValid.status && (
-              <ListItem button component={NavLink} to="/dashboard">
-                <ListItemText primary="Account & Settings" />
-              </ListItem>
-            )}
+            ))}
             <ListItem>
-              <Auth/>
+              <Auth />
             </ListItem>
           </List>
         </Box>

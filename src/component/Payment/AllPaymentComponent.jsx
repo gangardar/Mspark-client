@@ -114,7 +114,7 @@ export const AllPaymentComponent = ({
   if (isFetched && !paymentsData?.data?.length)
     return (
       <>
-        <EmptyState title={"No Payment Found"} />;
+        <EmptyState title={`No Payment Found`} description={`No stored payment data found for ${statusFilter}`}/>;
       </>
     );
 
