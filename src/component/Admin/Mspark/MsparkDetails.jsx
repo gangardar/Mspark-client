@@ -8,6 +8,7 @@ import { ErrorMessage } from "../../common/ErrorMessage";
 import MsparkInfoCard from "./MsparkInfoCard";
 import AddressCard from "../../User/AddressCard";
 import AccountsTable from "./AccountsTable";
+import Register from "../../Register";
 
 function MsparkDetails() {
   const [tabValue, setTabValue] = useState(0);
@@ -52,12 +53,14 @@ function MsparkDetails() {
         <Tab label="Accounts" />
         <Tab label="Address" />
         <Tab label="Wallet Operations" />
+        <Tab label="Add Admin" />
         <Tab label="Settings" />
       </Tabs>
 
       {tabValue === 0 && <AccountsTable accounts={mspark?.data?.accounts} onView={handleTableOnView}/>}
       {tabValue === 1 && <AddressCard mspark={mspark.data} />}
       {tabValue === 2 && <WalletOperations mspark={mspark.data} />}
+      {tabValue === 3 && <Register role="admin"/>}
     </Box>
   );
 }

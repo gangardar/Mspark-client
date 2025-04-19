@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useQueries } from "@tanstack/react-query";
+import PropTypes from "prop-types";
 
 const formStyle = {
     display: "flex",
@@ -18,7 +19,7 @@ const formStyle = {
     mt:2
   };
 
-const Register = (role = "bidder") => {
+const Register = ({role = "bidder"}) => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [alert, setAlert] = useState({
     open: false,
@@ -28,17 +29,21 @@ const Register = (role = "bidder") => {
   const {
     register,
     handleSubmit,
+    getValues,
+    reset,
     formState: { errors },
   } = useForm();
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/register`, {...data,...role});
+      const {confirmPassword, ...userData}= data;
+      const response = await axios.post(`${API_URL}/api/auth/register`, {...userData,role});
       const token = response.headers["x-auth-token"];
       localStorage.setItem("token", token);
       console.log(response)
       const decoded = jwtDecode(token);
       setAlert({open:true, message : response.data?.message, severity : "success"})
+      reset()
     } catch (error) {
       console.error("Registration failed", error);
       setAlert({open:true, message : error.response?.data?.message || "Registration failed. Please try again.", severity: "error"})
@@ -101,6 +106,20 @@ const Register = (role = "bidder") => {
         error={!!errors.password}
         helperText={errors.password?.message}
       />
+      <TextField
+        label="Confirm Password"
+        type="password"
+        autoComplete="new-password"
+        variant="outlined"
+        {...register("confirmPassword", {
+          required: "Confirm Password is required",
+          validate: (value) => {
+            return value === getValues().password || "Password don't match"
+          }
+        })}
+        error={!!errors.confirmPassword}
+        helperText={errors.confirmPassword?.message}
+      />
       <Button type="submit" variant="contained" color="primary" sx={{ color: "white" }}>
         Register
       </Button>
@@ -118,5 +137,9 @@ const Register = (role = "bidder") => {
     </>
   );
 };
+
+Register.propTypes = {
+  role : PropTypes.string
+}
 
 export default Register;
