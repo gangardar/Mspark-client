@@ -1,9 +1,9 @@
-import { useContext, useMemo } from 'react';
-import AuthContext from './AuthContext';
-import { jwtDecode } from 'jwt-decode';
+import { useContext, useMemo } from "react";
+import AuthContext from "./AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const useAuth = () => {
-  const { isValid } = useContext(AuthContext);
+  const { isValid, isLoading } = useContext(AuthContext);
 
   const userData = useMemo(() => {
     if (isValid?.status && isValid.token) {
@@ -16,7 +16,13 @@ const useAuth = () => {
     return null;
   }, [isValid]);
 
-  return { isValid, userData };
+  return {
+    isAuthenticated: isValid?.status || false,
+    isValid,
+    userData,
+    isLoading,
+    token: isValid?.token || null,
+  };
 };
 
 export default useAuth;

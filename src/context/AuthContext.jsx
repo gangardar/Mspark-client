@@ -10,6 +10,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isValid, setIsValid] = useState({ status: false, token: "" }); // Default to false
+  const [isLoading, setIsLoading] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false); //for rendering
   const {showSnackbar} = useContext(SnackbarContext)
 
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
     const endpoint = import.meta.env.VITE_API_URL;
 
     const validateToken = async (retryCount = 0) => {
+      setIsLoading(true);
       const maxRetries = 3;
       const retryDelay = 1000; // 1 second between retries
     
@@ -75,6 +77,8 @@ export const AuthProvider = ({ children }) => {
           console.error("Max retries reached. Giving up.");
           // Optionally show user message about connection issues
         }
+      }finally{
+        setIsLoading(false)
       }
     };
 
@@ -92,7 +96,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isValid, login, logout }}>
+    <AuthContext.Provider value={{ isValid, login, logout, isLoading }}>
       {shouldRedirect ? <Navigate to="/" /> : children}
     </AuthContext.Provider>
   );

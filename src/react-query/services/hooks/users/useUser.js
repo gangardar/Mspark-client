@@ -1,16 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../../apiClient";
 
-export const useUser = ({ page, limit }) => {
+export const useUser = ({ page, limit, role }) => {
   return useQuery({
-    queryKey: ["users", page, limit],
+    queryKey: ["users", page, limit, role],
     queryFn: async () => {
-      const response = await axiosInstance.get("/users",{
-        params : {
-            page, limit
-        }
-      });
+      const params = { page, limit };
+      if (role) params.role = role;
+      
+      const response = await axiosInstance.get("/users", { params });
       return response.data;
     },
+    keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
   });
 };

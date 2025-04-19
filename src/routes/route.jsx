@@ -20,7 +20,7 @@ import { NewWalletPage } from "../pages/Wallet/NewWalletPage";
 import { AddAddressPage } from "../pages/UserPages/AddAddressPage";
 import { ProfilePage } from "../pages/UserPages/ProfilePage";
 import { AllPayment } from "../pages/PaymentPages/AllPayment";
-import {DetailMsparkPage} from "../pages/AdminPages/Mspark/DetailMsparkPage";
+import { DetailMsparkPage } from "../pages/AdminPages/Mspark/DetailMsparkPage";
 import FailedPayment from "../pages/PaymentPages/FailedPayment";
 import PendingPayment from "../pages/PaymentPages/PendingPayment";
 import SoldGemForMerchantPage from "../pages/GemPages/SoldGemForMerchantPage";
@@ -31,6 +31,8 @@ import CreateDeliveryPage from "../pages/DeliveryPages/CreateDeliveryPage";
 import PendingDeliveryPage from "../pages/DeliveryPages/PendingDeliveryPage";
 import TransitDeliveryPage from "../pages/DeliveryPages/TransitDeliveryPage";
 import { AllPaymentsPage } from "../pages/AdminPages/Payments/AllPaymentsPage";
+import AllUsersPage from "../pages/UserPages/AllUserPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 const route = createBrowserRouter([
   {
@@ -58,7 +60,11 @@ const route = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout isAdmin={true}/>,
+    element: (
+      <ProtectedRoute roles={["admin"]}>
+        <AdminLayout isAdmin={true} />
+      </ProtectedRoute>
+    ),
     errorElement: <NotFound />,
     children: [
       {
@@ -70,12 +76,12 @@ const route = createBrowserRouter([
         element: <GemPage />,
       },
       {
-        path : "gems/assigned",
-        element :<AssignedGemPage/>
+        path: "gems/assigned",
+        element: <AssignedGemPage />,
       },
       {
-        path : "gems/verify/:id",
-        element :<VerificationPage/>
+        path: "gems/verify/:id",
+        element: <VerificationPage />,
       },
       {
         path: "merchant/all",
@@ -97,7 +103,7 @@ const route = createBrowserRouter([
       },
       {
         path: "payment/failed",
-        element: <AllPaymentsPage status={"failed"}/>,
+        element: <AllPaymentsPage status={"failed"} />,
       },
       // Admin Delivery Routes
       {
@@ -111,11 +117,28 @@ const route = createBrowserRouter([
       {
         path: "deliveries/inTransit",
         element: <TransitDeliveryPage />,
-      }, 
+      },
       {
         path: "deliveries/pending",
         element: <PendingDeliveryPage />,
-      },      
+      },
+      // User Routes
+      {
+        path: "users/all",
+        element: <AllUsersPage />,
+      },
+      {
+        path: "users/merchants",
+        element: <AllUsersPage role={"merchant"} />,
+      },
+      {
+        path: "users/bidders",
+        element: <AllUsersPage role={"bidder"} />,
+      },
+      {
+        path: "users/admin",
+        element: <AllUsersPage role={"admin"} />,
+      },
       {
         path: "mspark",
         children: [
@@ -124,10 +147,10 @@ const route = createBrowserRouter([
             element: <DetailMsparkPage />,
           },
           {
-            path: 'detail',
-            element: <DetailMsparkPage/>
+            path: "detail",
+            element: <DetailMsparkPage />,
           },
-        ]
+        ],
       },
     ],
   },
@@ -201,27 +224,25 @@ const route = createBrowserRouter([
       {
         path: "deliveries/inTransit",
         element: <TransitDeliveryPage />,
-      }, 
+      },
       {
         path: "deliveries/pending",
         element: <PendingDeliveryPage />,
       },
       {
-        path : "account-setting",
-        element : <NewWalletPage/>      
+        path: "account-setting",
+        element: <NewWalletPage />,
       },
       {
-        path : "address",
-        element : <AddAddressPage/>      
+        path: "address",
+        element: <AddAddressPage />,
       },
       {
-        path : "profile",
-        element : <ProfilePage/>      
-      }
-      
-      
+        path: "profile",
+        element: <ProfilePage />,
+      },
     ],
-  },  
+  },
   {
     path: "*",
     element: <NotFound />,
