@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   TextField,
@@ -12,10 +12,12 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Autocomplete,
 } from "@mui/material";
 import { gems } from "./gemTypes";
 import { AddPhotoAlternate, Cancel, Close } from "@mui/icons-material";
 import useRegisterGem from "../../react-query/services/hooks/gems/useRegisterGem";
+import SnackbarContext from "../../context/SnackbarContext";
 
 const shapeOptions = ["Round", "Oval", "Square", "Pear", "Rough", "Other"];
 const rarityOptions = ["Common", "Uncommon", "Rare", "Very Rare"];
@@ -26,12 +28,10 @@ const Register = () => {
     handleSubmit,
     register,
     setValue,
+    reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      status: "Pending",
-    },
-  });
+  } = useForm({});
+  const { showSnackbar } = useContext(SnackbarContext);
 
   const [showAdditional, setShowAdditional] = useState(false);
   const [showDimension, setShowDimension] = useState(false);
@@ -48,6 +48,7 @@ const Register = () => {
 
   const handleFileChange = (event) => {
     const files = event.target.files;
+    console.log(files);
     if (files) {
       const fileArray = Array.from(files).map((file) => ({
         url: URL.createObjectURL(file), // Convert file to URL
@@ -82,7 +83,6 @@ const Register = () => {
       const formData = new FormData();
 
       // Append non-file fields
-      formData.append("status", data.status);
       formData.append("name", data.name);
       formData.append("type", data.type);
       formData.append("color", data.color);
@@ -97,8 +97,16 @@ const Register = () => {
 
       // Send the request
       const result = await mutateAsync(formData);
-      console.log("Gem registered successfully:", result);
+      if (result?.success) {
+        showSnackbar(`${data?.name} gem is registerd successfully!`);
+        reset();
+        setImages([])
+      }
     } catch (error) {
+      showSnackbar(
+        error?.response?.data?.message || "Error registering gem!",
+        "error"
+      );
       console.error("Error registering gem:", error.message);
     }
   };
@@ -201,8 +209,19 @@ const Register = () => {
                 style={{ display: "none" }}
                 accept="image/*"
                 multiple
+                onChange={handleFileChange}
                 onInput={handleFileChange}
-                {...register("images")}
+                {...register("images", {
+                  required: "At least one image is required",
+                  validate: {
+                    maxFiles: (files) =>
+                      files.length <= 5 || "Maximum 5 images allowed",
+                    maxSize: (files) =>
+                      Array.from(files).every(
+                        (file) => file.size <= 5 * 1024 * 1024
+                      ) || "Each file should be less than 5MB",
+                  },
+                })}
               />
               <label htmlFor="file-upload">
                 <IconButton component="span">
@@ -214,6 +233,13 @@ const Register = () => {
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 (Max 5 images)
+              </Typography>
+              <Typography
+                display={!errors.images && "none"}
+                variant="caption"
+                color="error"
+              >
+                {errors?.images?.message}
               </Typography>
             </Box>
 
@@ -310,29 +336,31 @@ const Register = () => {
                   sx={{ flex: "1 1 48%" }}
                 />
 
-                <TextField
-                  label="Type"
-                  select
-                  variant="outlined"
+                <Autocomplete
+                  freeSolo
+                  options={gems?.map((gem) => gem.name) || []}
                   defaultValue="unknown"
-                  {...register("type", { required: "Type is required" })}
-                  error={!!errors.type}
-                  helperText={errors.type?.message}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Type"
+                      variant="outlined"
+                      {...register("type", { required: "Type is required" })}
+                      error={!!errors.type}
+                      helperText={errors.type?.message}
+                    />
+                  )}
                   sx={{ flex: "1 1 48%" }}
-                >
-                  {gems?.map((gem) => (
-                    <MenuItem key={gem.name} value={gem.name}>
-                      {gem.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                />
               </Box>
 
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
                 <TextField
                   label="Color"
                   variant="outlined"
-                  {...register("color")}
+                  {...register("color", { required: "Color is required" })}
+                  error={!!errors.color}
+                  helperText={errors.color?.message}
                   sx={{ flex: "1 1 48%" }}
                 />
                 <TextField

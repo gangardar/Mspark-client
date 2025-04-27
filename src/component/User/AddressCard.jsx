@@ -1,6 +1,8 @@
 import { Box, Grid2, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { EmptyState } from "../common/EmptyState";
+import PropTypes from "prop-types";
+import AddressForm from "./AddressForm";
 
 const AddressCard = ({mspark}) => {
   const [isEditing, setIsEditting] = useState(false);
@@ -15,7 +17,7 @@ const AddressCard = ({mspark}) => {
   }
 
   if(!address){
-    return <EmptyState title={"Mspark address not found!"} description={"Try refreshing.."}/>
+    return <AddressForm/>
   }
   console.log(address)
   return (
@@ -96,6 +98,43 @@ const AddressCard = ({mspark}) => {
       </Box>
     </>
   );
+};
+
+AddressCard.propTypes = {
+  mspark: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    type: PropTypes.oneOf(['primary', 'secondary']).isRequired,
+    platformFee: PropTypes.string.isRequired,
+    verificationFee: PropTypes.string.isRequired,
+    createdAt: PropTypes.string.isRequired,
+    updatedAt: PropTypes.string.isRequired,
+    totalAmount: PropTypes.shape({
+      currency: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired
+    }).isRequired,
+    address: PropTypes.shape({
+      country: PropTypes.string,
+      state: PropTypes.string,
+      city: PropTypes.string,
+      street: PropTypes.string,
+      houseNo: PropTypes.string,
+      postalcode: PropTypes.string
+    }),
+    accounts: PropTypes.arrayOf(
+      PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        symbol: PropTypes.string.isRequired,
+        balance: PropTypes.string.isRequired,
+        converted: PropTypes.shape({
+          currency: PropTypes.string,
+          rate: PropTypes.number,
+          value: PropTypes.any,
+          error: PropTypes.string
+        })
+      })
+    ).isRequired
+  }).isRequired
 };
 
 export default AddressCard;

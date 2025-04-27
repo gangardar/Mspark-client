@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { Alert, Box, Button, Snackbar, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useQueries } from "@tanstack/react-query";
 import PropTypes from "prop-types";
+import SnackbarContext from "../context/SnackbarContext";
 
 const formStyle = {
     display: "flex",
@@ -19,8 +20,13 @@ const formStyle = {
     mt:2
   };
 
-const Register = ({role = "bidder"}) => {
+const Register = ({role = "bidder", setLoginTab}) => {
+  console.log(role)
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const {showSnackbar} = useContext(SnackbarContext)
+    const fmtRole = role?.length > 0 
+    ? role.charAt(0).toUpperCase() + role.slice(1)
+    : 'Bidder';
   const [alert, setAlert] = useState({
     open: false,
     message: "",
@@ -43,6 +49,8 @@ const Register = ({role = "bidder"}) => {
       console.log(response)
       const decoded = jwtDecode(token);
       setAlert({open:true, message : response.data?.message, severity : "success"})
+      showSnackbar("Registered Successfully! Please login.")
+      setLoginTab(0)
       reset()
     } catch (error) {
       console.error("Registration failed", error);
@@ -62,7 +70,7 @@ const Register = ({role = "bidder"}) => {
       sx={formStyle}
     >
       <Typography sx={{color:'black'}} variant="h5" textAlign="center">
-        Register
+        Register as {fmtRole}
       </Typography>
       <TextField
         label="Full Name"
@@ -139,7 +147,8 @@ const Register = ({role = "bidder"}) => {
 };
 
 Register.propTypes = {
-  role : PropTypes.string
+  role : PropTypes.string,
+  setLoginTab: PropTypes.func
 }
 
 export default Register;

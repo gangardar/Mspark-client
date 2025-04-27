@@ -6,7 +6,6 @@ import RegisterGem from "../pages/RegisterGem";
 import { AdminLayout } from "../layouts/AdminLayout";
 import DashboardPage from "../pages/AdminPages/DashboardPage";
 import GemPage from "../pages/AdminPages/GemPage";
-import MerchantListPage from "../pages/AdminPages/MerchantListPage";
 import UserDashboardPage from "../pages/UserPages/UserDashboardPage";
 import Register from "../component/Gem/Register";
 import AssignedGemPage from "../pages/UserPages/AssignedGemPage";
@@ -33,6 +32,7 @@ import TransitDeliveryPage from "../pages/DeliveryPages/TransitDeliveryPage";
 import { AllPaymentsPage } from "../pages/AdminPages/Payments/AllPaymentsPage";
 import AllUsersPage from "../pages/UserPages/AllUserPage";
 import ProtectedRoute from "./ProtectedRoute";
+import Unauthorized from "../component/common/Unauthorized";
 
 const route = createBrowserRouter([
   {
@@ -83,10 +83,7 @@ const route = createBrowserRouter([
         path: "gems/verify/:id",
         element: <VerificationPage />,
       },
-      {
-        path: "merchant/all",
-        element: <MerchantListPage />,
-      },
+      // Auction Routes
       {
         path: "auctions/active",
         element: <ActiveAuctionPage />,
@@ -242,6 +239,10 @@ const route = createBrowserRouter([
         element: <ProfilePage />,
       },
     ],
+  },
+  {
+    path: '/unauthorized',
+    element: <Unauthorized/>
   },
   {
     path: "*",

@@ -5,10 +5,11 @@ import GemTable from "../../component/Gem/GemTable";
 import { useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import { Typography } from "@mui/material";
+import SnackbarContext from "../../context/SnackbarContext";
 
 const GemPage = () => {
   const { isValid } = useContext(AuthContext);
-  console.log(isValid);
+  const {showSnackbar} = useContext(SnackbarContext)
 
   let decodedToken = null;
   let isAdmin = false;
@@ -18,11 +19,11 @@ const GemPage = () => {
   if (isValid.status && isValid.token) {
     try {
       decodedToken = jwtDecode(isValid.token);
-      console.log("Decoded token:", decodedToken);
       isAdmin = decodedToken.role === "admin";
       merchantId = decodedToken._id; // Get the merchant ID from the token
     } catch (error) {
       console.error("Error decoding token:", error);
+      showSnackbar(error?.message||"Something went wrong in gem page." , "error")
     }
   }
 
@@ -32,6 +33,7 @@ const GemPage = () => {
     isLoading: isAdminLoading,
     isError: isAdminError,
     error: adminError,
+    refetch
   } = useGem(1, 10, {
     enabled: isAdmin, // Only fetch if the user is an admin
   });
@@ -60,7 +62,7 @@ const GemPage = () => {
       <Typography variant="h5" component="h2">
           All Gem
         </Typography>
-      <GemTable data={data} />
+      <GemTable data={data} refetch={refetch}  />
     </div>
   );
 };

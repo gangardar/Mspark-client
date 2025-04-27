@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   TextField,
@@ -19,6 +19,7 @@ import useGemById from "../../react-query/services/hooks/gems/useGemById";
 import useVerifyGem from "../../react-query/services/hooks/gems/useVerifyGem";
 import useDeleteGemImage from "../../react-query/services/hooks/gems/useDeleteGemImage";
 import StatusPopup from "./StatusPopup";
+import SnackbarContext from "../../context/SnackbarContext";
 
 const shapeOptions = ["Round", "Oval", "Square", "Pear", "Rough", "Other"];
 const rarityOptions = ["Common", "Uncommon", "Rare", "Very Rare"];
@@ -28,6 +29,7 @@ const VerifyGem = (id) => {
   const { data: Data, isLoading, isError } = useGemById(id.id);
   const { mutateAsync: deleteImg } = useDeleteGemImage();
   const [showStatusPopup, setShowStatusPopup] = useState(false);
+  const { showSnackbar } = useContext(SnackbarContext);
   const gemData = Data?.data;
   const {
     handleSubmit,
@@ -147,18 +149,25 @@ const VerifyGem = (id) => {
 
       // Append all fields to FormData
       Object.keys(data).forEach((key) => {
-        if (key === "_id" || key === "createdAt" || key === "updatedAt") {
+        if (
+          key === "_id" ||
+          key === "createdAt" ||
+          key === "updatedAt" ||
+          key === "deliveries"
+        ) {
           return; // Skip this iteration
         }
 
         if (key === "dimension") {
-          // Handle nested dimension object
-          if (data.dimension.length)
-            formData.append("dimension.length", data.dimension.length);
-          if (data.dimension.width)
-            formData.append("dimension.width", data.dimension.width);
-          if (data.dimension.height)
-            formData.append("dimension.height", data.dimension.height);
+          if (data.dimension.length) {
+            formData.append("dimension[length]", data.dimension.length);
+          }
+          if (data.dimension.width) {
+            formData.append("dimension[width]", data.dimension.width);
+          }
+          if (data.dimension.height) {
+            formData.append("dimension[height]", data.dimension.height);
+          }
         } else if (key === "images") {
           // Handle images (append each file)
           if (data.images) {
@@ -179,10 +188,16 @@ const VerifyGem = (id) => {
         }
       });
       const result = await mutateAsync({ id, formData });
-
+      if (result?.success) {
+        showSnackbar("Gem updated Successfully!");
+      }
       setShowStatusPopup(true);
       console.log("Gem verifying successfully:", result);
     } catch (error) {
+      showSnackbar(
+        error?.response?.data?.message || "Faile to update Gem.",
+        "error"
+      );
       console.error("Error verifying gem:", error.message);
     }
   };
@@ -251,16 +266,22 @@ const VerifyGem = (id) => {
             <Box
               component="div"
               sx={{
-                borderRadius: 5,
-                width: "70%",
-                height: "15rem",
-                bgcolor: "yellow",
-                my: 3,
+                borderRadius: 2,
+                width: "100%",
+                height: "200px", // Fixed height
+                bgcolor: "grey.100", // Lighter background
+                border: "2px dashed",
+                borderColor: "grey.400",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
                 cursor: "pointer",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  bgcolor: "grey.200",
+                },
               }}
             >
               {/* Hidden file input */}
@@ -270,26 +291,46 @@ const VerifyGem = (id) => {
                 style={{ display: "none" }}
                 accept="image/*"
                 multiple
+                onChange={handleFileChange}
                 onInput={handleFileChange}
-                {...register("images")}
+                {...register("images", {
+                  validate: {
+                    maxFiles: (files) =>
+                      files?.length <= 5 || "Maximum 5 images allowed",
+                    maxSize: (files) =>
+                      Array.from(files).every(
+                        (file) => file.size <= 5 * 1024 * 1024
+                      ) || "Each file should be less than 5MB",
+                  },
+                })}
               />
-              {/* Icon and label */}
               <label htmlFor="file-upload">
                 <IconButton component="span">
-                  <AddPhotoAlternate sx={{ fontSize: 100, color: "gray" }} />
+                  <AddPhotoAlternate sx={{ fontSize: 50, color: "grey.600" }} />
                 </IconButton>
               </label>
-              <Typography variant="body1" color="textSecondary">
-                Add Photos
+              <Typography variant="body1" color="text.secondary">
+                Click to upload images
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                (Max 5 images)
+              </Typography>
+              <Typography
+                display={!errors.images && "none"}
+                variant="caption"
+                color="error"
+              >
+                {errors?.images?.message}
               </Typography>
             </Box>
+
             <Box
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
-                alignItems: "left",
-                gap: 1,
+                gap: 1.5,
                 my: 2,
+                justifyContent: "center",
               }}
             >
               {images.map((image, index) => (
@@ -297,8 +338,16 @@ const VerifyGem = (id) => {
                   key={index}
                   sx={{
                     position: "relative",
-                    width: "50px",
-                    height: "50px",
+                    width: "80px", // Fixed width
+                    height: "80px", // Fixed height
+                    borderRadius: 1,
+                    overflow: "hidden",
+                    boxShadow: 1,
+                    transition: "transform 0.2s",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      boxShadow: 3,
+                    },
                   }}
                 >
                   <img
@@ -309,28 +358,32 @@ const VerifyGem = (id) => {
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                      borderRadius: "4px",
+                      cursor: "pointer",
                     }}
                   />
                   {/* Red cross button */}
                   <IconButton
                     sx={{
                       position: "absolute",
-                      top: 0,
-                      right: 0,
-                      padding: 0,
-                      color: "red",
-                      backgroundColor: "white",
-                      borderRadius: "50%",
-                      width: "16px",
-                      height: "16px",
+                      top: 4,
+                      right: 4,
+                      padding: 0.5,
+                      backgroundColor: "rgba(255,255,255,0.8)",
                       "&:hover": {
-                        backgroundColor: "white",
+                        backgroundColor: "rgba(255,255,255,0.9)",
                       },
                     }}
-                    onClick={() => handleRemoveImage(index)} // Remove image on click
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(index);
+                    }}
                   >
-                    <Cancel sx={{ fontSize: "14px" }} />
+                    <Cancel
+                      sx={{
+                        fontSize: "16px",
+                        color: "error.main",
+                      }}
+                    />
                   </IconButton>
                 </Box>
               ))}
@@ -659,16 +712,32 @@ const VerifyGem = (id) => {
                   )}
                 </>
               )}
-
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                disabled={!isDirty || !isValid}
-                sx={{ mt: 3, py: 1.5 }}
-              >
-                Submit
-              </Button>
+              <Grid2 container size={{ xs: 12 }} spacing={2}>
+                <Grid2 size={{xs:12, sm : 6}}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={!isDirty}
+                    sx={{ mt: 3, py: 1.5 }}
+                  >
+                    Submit
+                  </Button>
+                </Grid2>
+                <Grid2 size={{xs:12, sm : 6}}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setShowStatusPopup(true);
+                    }}
+                    fullWidth
+                    disabled={!isValid || gemData?.status !== "pending"}
+                    sx={{ mt: 3, py: 1.5 }}
+                  >
+                    Okay Verified
+                  </Button>
+                </Grid2>
+              </Grid2>
             </Box>
           </Grid2>
           <Grid2></Grid2>

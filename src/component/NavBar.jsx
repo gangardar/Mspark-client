@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Menu } from "@mui/icons-material";
 import Logo from "./Logo";
 import useAuth from "../context/useAuth";
+import AuthButton from "./User/AuthButton";
 
 const NavLink = React.forwardRef(({ to, children }, ref) => {
   const location = useLocation();
@@ -83,6 +84,7 @@ const getNavItems = (role, username) => {
 const Navbar = () => {
   const { isValid, userData } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -95,6 +97,7 @@ const Navbar = () => {
 
   return (
     <>
+    <Auth loginModal={loginModal} setLoginModal={setLoginModal}/>
       <AppBar position="static" sx={{ position: "fixed" }}>
         <Toolbar sx={{ flexDirection: { xs: "row" } }}>
           {/* Mobile menu button */}
@@ -131,7 +134,7 @@ const Navbar = () => {
 
           {/* Auth component */}
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <Auth />
+            <AuthButton setLoginModal={setLoginModal}/>
           </Box>
         </Toolbar>
       </AppBar>
@@ -160,7 +163,7 @@ const Navbar = () => {
               </ListItem>
             ))}
             <ListItem>
-              <Auth />
+              <AuthButton setLoginModal={setLoginModal}/>
             </ListItem>
           </List>
         </Box>

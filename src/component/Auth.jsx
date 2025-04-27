@@ -1,16 +1,12 @@
-/* eslint-disable no-unused-vars */
 import {
-  Box,
-  Button,
-  Modal, Tab,
+  Box, Modal, Tab,
   Tabs
 } from "@mui/material";
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Register from "./Register";
 import Login from "./login";
-import AuthContext from "../context/AuthContext";
-import MiniProfile from "./MiniProfile";
 import { useSearchParams } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const style = {
   position: "absolute",
@@ -24,50 +20,57 @@ const style = {
   borderRadius: 2,
 };
 
-const Auth = () => {
-  let [searchParams, setSearchParams] = useSearchParams();
-  const [loginModal, setLoginModal] = useState(false);
-  useEffect(() => {
-    setLoginModal(searchParams.get('role') ? true : false);
-  }, [searchParams]);
-  const role = searchParams.get('role')
-  const toggleLoginModal = () => setLoginModal(!loginModal);
+const Auth = ({loginModal, setLoginModal}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(0);
-  const { isValid, login, logout } = useContext(AuthContext);
+  const role = searchParams.get('role') || undefined;
+
+
+  // Handle URL role changes
+  useEffect(() => {
+    if (role) {
+      setLoginModal(true);
+      setActiveTab(1);
+    }
+  }, [role, setLoginModal]);
+
+  // Close modal and clear role param
+  const handleCloseModal = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('role');
+    setSearchParams(params);
+    setLoginModal(false);
+  };
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = loginModal ? 'hidden' : '';
+  }, [loginModal]);
 
   return (
     <>
-      {!isValid.status ? (
-        <Button onClick={toggleLoginModal} variant="text">
-          Login
-        </Button>
-      ) : (
-        <MiniProfile />
-      )}
-
-      {/* Login and Register modal */}
       <Modal
         open={loginModal}
-        onClose={toggleLoginModal}
-        aria-labelledby="login modal"
-        aria-describedby="login to the mspark paltform"
+        onClose={handleCloseModal}
+        aria-labelledby="login-modal"
       >
         <Box sx={style}>
-          <Tabs
-            value={activeTab}
-            onChange={(e, newValue) => setActiveTab(newValue)}
-          >
+          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
             <Tab label="Login" />
             <Tab label="Register" />
           </Tabs>
-
-          {activeTab === 0 && <Login onSuccess={() => setLoginModal(false)} />}
-
-          {activeTab === 1 && <Register role={role} />}
+          {activeTab === 0 && <Login onSuccess={handleCloseModal} />}
+          {activeTab === 1 && <Register role={role} setLoginTab={setActiveTab} />}
         </Box>
       </Modal>
     </>
   );
 };
+
+Auth.propTypes = {
+  loginModal : PropTypes.bool.isRequired,
+  setLoginModal: PropTypes.func.isRequired
+}
+
 
 export default Auth;

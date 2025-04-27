@@ -8,61 +8,100 @@ import {
   Paper,
   IconButton,
   Button,
-  CircularProgress,
-  Snackbar,
-  Alert,
   Modal,
   Box,
+  Menu,
+  MenuItem,
+  Tooltip,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { MoreVert, AssignmentInd, Verified } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import { useContext, useState } from "react";
 import AuthContext from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import useGemAssignToMe from "../../react-query/services/hooks/gems/useGemAssignToMe";
 import { useNavigate } from "react-router-dom";
-import GemDetailedView from "./GemDetailedView"; // Import the GemDetailedView component
+import GemDetailedView from "./GemDetailedView";
+import SnackbarContext from "../../context/SnackbarContext";
 
-const GemTable = ({ data }) => {
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const [selectedGem, setSelectedGem] = useState(null); // State for selected gem
+const GemTable = ({ data, refetch }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGem, setSelectedGem] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { showSnackbar } = useContext(SnackbarContext);
   const { isValid } = useContext(AuthContext);
   const user = jwtDecode(isValid.token);
-  const { mutateAsync: assignToMe, isLoading, isError } = useGemAssignToMe();
+  const { mutateAsync: assignToMe, isLoading } = useGemAssignToMe();
   const navigate = useNavigate();
 
-  const handleVerify = (gem) => {
-    navigate(`/admin/gems/verify/${gem._id}`);
-  };
-
-  const handleAssign = async (gem) => {
+  const handleAssign = async () => {
     try {
-      await assignToMe(gem);
-      setSnackbarMessage("Gem assigned successfully!");
-      setSnackbarOpen(true);
+      await assignToMe(selectedGem);
+      showSnackbar("Gem assigned successfully!");
+      refetch()
     } catch (error) {
-      setSnackbarMessage(error.message || "Failed to assign gem");
-      setSnackbarOpen(true);
+      showSnackbar(
+        error.response?.data?.message || "Failed to assign gem",
+        "error"
+      );
+      console.log(error)
+    } finally {
+      handleMenuClose();
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
+  const handleVerify = () => {
+    navigate(`/admin/gems/verify/${selectedGem._id}`);
+    refetch()
+    handleMenuClose();
   };
 
-  // Open modal and set selected gem
   const handleShowCertificate = (gem) => {
     setSelectedGem(gem);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const handleCloseModal = () => {
-    console.log(isModalOpen)
     setIsModalOpen(false);
     setSelectedGem(null);
+  };
+
+  const handleMenuOpen = (event, gem) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedGem(gem);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedGem(null);
+  };
+
+  const renderDeliveryStatus = (gem) => {
+    if (!gem?.deliveries?.length) {
+      if (user.role === "merchant") {
+        return (
+          <Button
+            variant="outlined"
+            size="small"
+            color="primary"
+            onClick={() =>
+              navigate(`/dashboard/${user.username}/deliveries/create`)
+            }
+            sx={{
+              py: 0.5,
+              px: 1.5,
+              fontSize: "0.75rem",
+              textTransform: "none",
+            }}
+          >
+            Deliver to Mspark
+          </Button>
+        );
+      }
+      return "Not delivered yet";
+    }
+    const lastDelivery = gem.deliveries[gem.deliveries.length - 1];
+    return `${lastDelivery.status} ${lastDelivery.type} delivery`;
   };
 
   return (
@@ -77,9 +116,8 @@ const GemTable = ({ data }) => {
               <TableCell>Weight (ct)</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Merchant</TableCell>
-              {user.role !== "admin" && <TableCell>Delivery Status</TableCell>}
+              <TableCell>Delivery Status</TableCell>
               {user.role === "admin" && <TableCell>Assigned To</TableCell>}
-              {user.role === "admin" && <TableCell>Verify</TableCell>}
               <TableCell>Certificate</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -93,55 +131,31 @@ const GemTable = ({ data }) => {
                 <TableCell>{gem.weight || "-"}</TableCell>
                 <TableCell>{gem.status}</TableCell>
                 <TableCell>{gem.merchantId?.fullName || "Unknown"}</TableCell>
+                <TableCell>{renderDeliveryStatus(gem)}</TableCell>
                 {user.role === "admin" && (
                   <TableCell>
                     {gem?.verifierId?.fullName || "Unassigned"}
                   </TableCell>
                 )}
-                {user.role === "admin" && !gem?.verifierId && (
-                  <TableCell>
+                <TableCell>
+                  {gem?.status !== "pending" ? (
                     <Button
                       variant="text"
                       color="primary"
-                      onClick={() => handleAssign(gem)}
-                      disabled={isLoading || gem?.verifierId}
-                      startIcon={
-                        isLoading ? <CircularProgress size={20} /> : null
-                      }
+                      onClick={() => handleShowCertificate(gem)}
                     >
-                      {isLoading ? "Assigning..." : "Assign To me"}
+                      Certificate
                     </Button>
-                  </TableCell>
-                )}
-                {(user.role === "admin" && gem?.verifierId) && (
-                  <TableCell>
-                    {gem?.status === "Pending" ? (
-                      <Button
-                        variant="text"
-                        color="primary"
-                        onClick={() => handleVerify(gem)}
-                        disabled={isLoading}
-                      >
-                        Verify
-                      </Button>
-                    ) : (
-                      "No Action"
-                    )}
-                  </TableCell>
-                )}
-                <TableCell>
-                  <Button
-                    variant="text"
-                    color="primary"
-                    onClick={() => handleShowCertificate(gem)} // Open modal for this gem
-                    disabled={isLoading}
-                  >
-                    Certificate
-                  </Button>
+                  ) : (
+                    "Yet To Verify"
+                  )}
                 </TableCell>
                 <TableCell>
-                  <IconButton color="dark">
-                    <Delete />
+                  <IconButton
+                    aria-label="actions"
+                    onClick={(e) => handleMenuOpen(e, gem)}
+                  >
+                    <MoreVert />
                   </IconButton>
                 </TableCell>
               </TableRow>
@@ -150,27 +164,72 @@ const GemTable = ({ data }) => {
         </Table>
       </TableContainer>
 
-      {/* Snackbar for success/error messages */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={isError ? "error" : "success"}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+        {(() => {
+          // Extract delivery verification logic once
+          const hasValidDelivery =
+            selectedGem?.deliveries?.length > 0 &&
+            selectedGem.deliveries[selectedGem.deliveries.length - 1].type ===
+              "verification" &&
+            selectedGem.deliveries[selectedGem.deliveries.length - 1].status ===
+              "delivered";
 
-      {/* Modal for Certificate */}
+          const deliveryTooltip = hasValidDelivery
+            ? ""
+            : "Gem must be delivered for verification first";
+
+          return (
+            <>
+              {user.role === "admin" && !selectedGem?.verifierId && (
+                <Tooltip title={deliveryTooltip}>
+                  <span>
+                    <MenuItem
+                      onClick={handleAssign}
+                      disabled={isLoading || !hasValidDelivery}
+                    >
+                      <AssignmentInd fontSize="small" sx={{ mr: 1 }} />
+                      {isLoading ? "Assigning..." : "Assign to me"}
+                    </MenuItem>
+                  </span>
+                </Tooltip>
+              )}
+
+              {user.role === "admin" &&
+                selectedGem?.verifierId &&
+                selectedGem?.status === "pending" && (
+                  <Tooltip title={deliveryTooltip}>
+                    <span>
+                      <MenuItem
+                        onClick={handleVerify}
+                        disabled={!hasValidDelivery}
+                      >
+                        <Verified fontSize="small" sx={{ mr: 1 }} />
+                        Verify
+                      </MenuItem>
+                    </span>
+                  </Tooltip>
+                )}
+              <Tooltip title={selectedGem?.status === "pending" ? "Certificate available only after verification." : ''}>
+                <span>
+                  <MenuItem disabled={selectedGem?.status === "pending"} onClick={() => handleShowCertificate(selectedGem)}>
+                    View Certificate
+                  </MenuItem>
+                </span>
+              </Tooltip>
+              
+            </>
+          );
+        })()}
+      </Menu>
+
       <Modal
         open={isModalOpen}
         onClose={handleCloseModal}
         aria-labelledby="certificate-modal"
-        aria-describedby="certificate-modal-description"
       >
         <Box
           sx={{
@@ -180,20 +239,15 @@ const GemTable = ({ data }) => {
             transform: "translate(-50%, -50%)",
             width: "80%",
             maxWidth: "800px",
-            maxHeight: "90vh",
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            outline: "none",
-            overflow: 'auto'
           }}
         >
           {selectedGem && <GemDetailedView gem={selectedGem} />}
-          <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button onClick={handleCloseModal} variant="contained">
-              Close
-            </Button>
-          </Box>
+          <Button onClick={handleCloseModal} sx={{ mt: 2 }} variant="contained">
+            Close
+          </Button>
         </Box>
       </Modal>
     </>
@@ -209,13 +263,18 @@ GemTable.propTypes = {
         type: PropTypes.string,
         color: PropTypes.string.isRequired,
         weight: PropTypes.number,
-        shape: PropTypes.string,
-        rarity: PropTypes.string,
         status: PropTypes.string.isRequired,
-        price: PropTypes.number,
+        merchantId: PropTypes.shape({
+          fullName: PropTypes.string,
+        }),
+        deliveries: PropTypes.array,
+        verifierId: PropTypes.shape({
+          fullName: PropTypes.string,
+        }),
       })
     ),
   }),
+  refetch : PropTypes.func.isRequired
 };
 
 export default GemTable;

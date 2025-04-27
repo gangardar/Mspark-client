@@ -8,7 +8,7 @@ export const useUser = ({ page, limit, role }) => {
       const params = { page, limit };
       if (role) params.role = role;
       
-      const response = await axiosInstance.get("/users", { params });
+      const response = await axiosInstance.get("/users/all", { params });
       return response.data;
     },
     keepPreviousData: true,

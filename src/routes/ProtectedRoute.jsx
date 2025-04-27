@@ -4,22 +4,27 @@ import useAuth from "../context/useAuth";
 import { LoadingSpinner } from "../component/common/LoadingSpinner";
 
 const ProtectedRoute = ({ children, roles = [] }) => {
-  const { isValid, userData } = useAuth();
+  const { isAuthenticated, userData, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isValid === undefined) {
-    // Auth state not yet determined
+  if (isLoading) {
+    // Show loading state while auth status is being determined
     return <LoadingSpinner message="Authenticating..." />;
   }
 
-  if (!isValid?.status || !userData) {
+  if (!isAuthenticated) {
     // Not authenticated - redirect to login with return location
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  if (roles.length > 0 && !roles.includes(userData.role)) {
-    // Authorized but not for this role - redirect to home
-    return <Navigate to="/" replace />;
+  // At this point we know user is authenticated
+  if (roles.length > 0) {
+    // If roles are specified, check if user has required role
+    const userRole = userData?.role;
+    if (!userRole || !roles.includes(userRole)) {
+      // Authorized but not for this role - redirect to home or unauthorized page
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
   return children;

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
 import PropTypes from "prop-types";
+import SnackbarContext from "../context/SnackbarContext";
 
 const formStyle = {
     display: "flex",
@@ -18,6 +19,7 @@ const formStyle = {
   };
 
 const Login = ({onSuccess}) => {
+  const {showSnackbar} = useContext(SnackbarContext);
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [alert, setAlert] = useState({
     open: false,
@@ -37,9 +39,9 @@ const Login = ({onSuccess}) => {
         const response = await axios.post(`${API_URL}/api/auth/login`, data);
         const token = response.headers["x-auth-token"];
         console.log(response)
-        setAlert({open:true, message : response.data?.message, severity : "success"})
         login(token);
         onSuccess();
+        showSnackbar("Login Successfully!")
       } catch (error) {
         console.error("Login failed", error);
         setAlert({open:true, message : error.response?.data?.message || "Login failed. Please try again.", severity: "error"})
