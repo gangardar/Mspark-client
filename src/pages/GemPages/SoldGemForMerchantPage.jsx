@@ -23,6 +23,7 @@ function SoldGemForMerchantPage() {
     isLoading,
     isError,
     error,
+    refetch
   } = useSoldGemByMerchantId(
     { merchantId: userData?._id },
     { enabled: !!userData?._id }
@@ -49,7 +50,7 @@ function SoldGemForMerchantPage() {
     return <ErrorMessage message="No sold gems found" />;
   }
 
-  return <GemTable data={soldGems} />;
+  return <GemTable data={soldGems} refetch={refetch}/>;
 }
 
 export default SoldGemForMerchantPage;

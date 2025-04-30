@@ -33,6 +33,9 @@ import { AllPaymentsPage } from "../pages/AdminPages/Payments/AllPaymentsPage";
 import AllUsersPage from "../pages/UserPages/AllUserPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "../component/common/Unauthorized";
+import GemListingTerms from "../component/Policies/GemListingTerms";
+import PrivacyPolicy from "../component/Policies/PrivacyPolicy";
+import CertificationGuide from "../component/Policies/CertificationGuide";
 
 const route = createBrowserRouter([
   {
@@ -243,6 +246,18 @@ const route = createBrowserRouter([
   {
     path: '/unauthorized',
     element: <Unauthorized/>
+  },
+  {
+    path: '/gem-listing-terms',
+    element: <GemListingTerms/>
+  },
+  {
+    path: '/privacy-policy',
+    element: <PrivacyPolicy/>
+  },
+  {
+    path: '/certification-guide',
+    element: <CertificationGuide/>
   },
   {
     path: "*",

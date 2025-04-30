@@ -16,7 +16,7 @@ const Layout = () => {
       <Box 
         component="main"
         sx={{
-          pt: 8, // Add top padding equal to navbar height
+          pt: 7, // Add top padding equal to navbar height
           minHeight: 'calc(100vh - 64px)' // Adjust viewport height
         }}
       >

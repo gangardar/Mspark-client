@@ -10,7 +10,7 @@ const formStyle = {
     display: "flex",
     flexDirection: "column",
     gap: 2,
-    width: 300,
+    width: {xs:250,md:300},
     margin: "auto",
     padding: 3,
     boxShadow: 3,

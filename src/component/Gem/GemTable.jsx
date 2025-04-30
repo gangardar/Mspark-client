@@ -239,7 +239,9 @@ const GemTable = ({ data, refetch }) => {
             transform: "translate(-50%, -50%)",
             width: "80%",
             maxWidth: "800px",
+            maxHeight: "90vh",
             bgcolor: "background.paper",
+            overflow: "auto",
             boxShadow: 24,
             p: 4,
           }}

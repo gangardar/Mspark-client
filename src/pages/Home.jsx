@@ -49,7 +49,11 @@ const Home = () => {
         <Box sx={{ display: "flex", gap: 3 }}>
           <Button
             variant="contained"
-            size="large"
+            sx={{
+              py: { xs: 0.5, md: 1.5 }, // Vertical padding
+              px: { xs: 2, md: 4 }, // Horizontal padding
+              fontSize: { xs: "0.875rem", md: "1.125rem" },
+            }}
             component={Link}
             to="?role=bidder"
           >
@@ -57,10 +61,15 @@ const Home = () => {
           </Button>
           <Button
             variant="outlined"
-            size="large"
+            size={"large"}
+            sx={{
+              py: { xs: 0.5, md: 1.5 }, // Vertical padding
+              px: { xs: 2, md: 4 }, // Horizontal padding
+              fontSize: { xs: "0.875rem", md: "1.125rem" },
+              color: "white", borderColor: "white" 
+            }}
             component={Link}
-            sx={{ color: "white", borderColor: "white" }}
-            to= "?role=merchant"
+            to="?role=merchant"
           >
             Register as Merchant
           </Button>

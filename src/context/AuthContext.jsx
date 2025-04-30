@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token"); // Remove the token from localStorage
     setIsValid({ status: false, token: "" }); // Update the state
+    showSnackbar("You are logout.")
   };
 
   return (

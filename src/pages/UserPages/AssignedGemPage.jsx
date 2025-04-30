@@ -29,6 +29,7 @@ const AssignedGemPage = () => {
     isLoading ,
     isError ,
     error,
+    refetch
   } = useGemByVerifierId(merchantId, 1, 10, {
     enabled: !isAdmin && !!merchantId, // Only fetch if the user is not an admin and merchantId is available
   });
@@ -40,7 +41,7 @@ const AssignedGemPage = () => {
   return (
     <div>
       <h3>Gem Page</h3>
-      <GemTable data={data} />
+      <GemTable data={data} refetch={refetch}/>
     </div>
   );
 };

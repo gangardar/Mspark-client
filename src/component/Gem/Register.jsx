@@ -13,11 +13,14 @@ import {
   DialogContent,
   DialogTitle,
   Autocomplete,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { gems } from "./gemTypes";
 import { AddPhotoAlternate, Cancel, Close } from "@mui/icons-material";
 import useRegisterGem from "../../react-query/services/hooks/gems/useRegisterGem";
 import SnackbarContext from "../../context/SnackbarContext";
+import { Link } from "react-router-dom";
 
 const shapeOptions = ["Round", "Oval", "Square", "Pear", "Rough", "Other"];
 const rarityOptions = ["Common", "Uncommon", "Rare", "Very Rare"];
@@ -100,7 +103,7 @@ const Register = () => {
       if (result?.success) {
         showSnackbar(`${data?.name} gem is registerd successfully!`);
         reset();
-        setImages([])
+        setImages([]);
       }
     } catch (error) {
       showSnackbar(
@@ -546,7 +549,7 @@ const Register = () => {
                       sx={{ flex: "1 1 48%" }}
                       value={`${dimensionText.length} ${dimensionText.width} ${dimensionText.height}`}
                       onClick={toggleDimension}
-                      InputProps={{ readOnly: true }}
+                      slotProps={{ readOnly: true }}
                     />
                   </Box>
 
@@ -634,7 +637,28 @@ const Register = () => {
                   )}
                 </>
               )}
-
+              <FormControlLabel
+                required
+                control={<Checkbox name="gem-certification-consent" />}
+                label={
+                  <span>
+                    I confirm my gem matches the entered details as well as image and
+                    accept the{" "}
+                    <Link href="/privacy-policy" target="_blank">
+                      Privacy Policy
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/gem-listing-terms" target="_blank">
+                      Gem Listing Terms
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/certification-guide" target="_blank">
+                      Certification Guide
+                    </Link>
+                    .
+                  </span>
+                }
+              />
               <Button
                 type="submit"
                 variant="contained"

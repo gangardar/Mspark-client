@@ -12,11 +12,13 @@ const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
+  width: { xs: '80vw', sm: 400 },
   transform: "translate(-50%, -50%)",
-  width: 400,
   bgcolor: "background.paper",
+  maxHeight: {xs:"80vh", md: "90vh"},
   boxShadow: 24,
-  p: 4,
+  overflow: "auto",
+  p: {xs:2, md:3},
   borderRadius: 2,
 };
 
