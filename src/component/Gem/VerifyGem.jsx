@@ -61,7 +61,7 @@ const VerifyGem = (id) => {
       setValue("dimension.height", gemData.dimension?.height);
       setImages(
         gemData?.images.map((image) => ({
-          url: `http://localhost:3000/${image}`, // Assuming image is a URL
+          url: `${import.meta.env.VITE_API_URL}/${image}`, // Assuming image is a URL
           isNew: false, // Flag to indicate this is an existing image
         }))
       );

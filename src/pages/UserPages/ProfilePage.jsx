@@ -5,10 +5,10 @@ import Profile from "../../component/User/Profile";
 
 export const ProfilePage = () => {
     console.log("Profile Page")
-    const {data : userData, isLoading,error} = useGetMe()
+    const {data : userData, isLoading,error, refetch} = useGetMe()
     if(isLoading) return ("Loading User!")
     if(error) console.log(error)
   return (
-    <Profile user={userData.data}/>
+    <Profile user={userData.data} refetch={refetch}/>
   )
 }

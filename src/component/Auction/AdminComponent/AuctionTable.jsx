@@ -15,6 +15,8 @@ import {
   TextField,
   InputAdornment,
   Chip,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import {
   MoreVert,
@@ -31,6 +33,7 @@ import useCancelAuction from "../../../react-query/services/hooks/auctions/useCa
 import useActivateAuction from "../../../react-query/services/hooks/auctions/useActivateAuction";
 import BidHistoryModal from "../BidHistoryModal";
 import ExtendAuctionModal from "../ExtendAuctionModal";
+import AuctionDetail from "../AuctionDetail";
 
 const statusColors = {
   active: "success",
@@ -47,6 +50,7 @@ const AuctionTable = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [showBidModal, setShowBidModal] = useState(false);
+  const [openViewDetail, setOpenViewDetail] = useState(false);
   const [showExtendModal, setShowExtendModal] = useState(false);
   const { showSnackbar } = useContext(SnackbarContext);
   const { mutateAsync: cancelAuction } = useCancelAuction();
@@ -144,6 +148,10 @@ const AuctionTable = () => {
     if (selectedAuction) setShowBidModal(true);
   };
 
+  const handleViewDetail = () => {
+    if(selectedAuction) setOpenViewDetail(true)
+  }
+
   const handleExtendAuction = () => {
     if (selectedAuction) setShowExtendModal(true);
   };
@@ -238,7 +246,7 @@ const AuctionTable = () => {
                 <TableCell>
                   {new Date(auction.endTime).toLocaleString()}
                 </TableCell>
-                <TableCell>{auction.endingIn}</TableCell>
+                <TableCell>{auction.status === "active" ? auction.endingIn : "Ended"}</TableCell>
                 <TableCell>
                   <Chip
                     icon={getStatusIcon(auction.status)}
@@ -304,7 +312,7 @@ const AuctionTable = () => {
         >
           Extend Auction
         </MenuItem>
-        <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
+        <MenuItem onClick={handleViewDetail}>View Details</MenuItem>
         <MenuItem onClick={handleViewBid}>View Bids</MenuItem>
       </Menu>
       <BidHistoryModal
@@ -321,6 +329,26 @@ const AuctionTable = () => {
         auction={selectedAuction}
         refetchAuctions={refetch}
       />
+
+      {/* Auction Detail View Model */}
+      <Dialog
+        open={openViewDetail}
+        onClose={()=>setOpenViewDetail(false)}
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            maxHeight: "90vh",
+          },
+        }}
+      >
+        <DialogContent>
+          <Box sx={{ p: 2 }}>
+            <AuctionDetail auctionId={selectedAuction?._id} />
+          </Box>
+        </DialogContent>
+      </Dialog>
+
     </Paper>
   );
 };

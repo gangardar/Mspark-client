@@ -1,6 +1,5 @@
 import { Box, Grid2, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { EmptyState } from "../common/EmptyState";
 import PropTypes from "prop-types";
 import AddressForm from "./AddressForm";
 

@@ -7,6 +7,7 @@ import {
   Container,
   FormControl,
   FormControlLabel,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -28,6 +29,7 @@ const CreateNewAuction = () => {
   const { showSnackbar } = useContext(SnackbarContext);
   const [merchant, setMerchant] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [selectedGem, setSelectedGem] = useState(null);
 
   const {
     register,
@@ -41,9 +43,12 @@ const CreateNewAuction = () => {
     data: gems,
     isLoading: gemsLoading,
     error: gemsError,
-  } = useGemByMerchantId({merchantId: merchant?._id}, { enabled: !!merchant?._id });
+  } = useGemByMerchantId(
+    { merchantId: merchant?._id },
+    { enabled: !!merchant?._id }
+  );
 
-  const verifiedGem = gems?.data?.filter((gem) => gem.status === "Verified");
+  const verifiedGem = gems?.data?.filter((gem) => gem.status === "verified");
 
   // Mutation for adding auction
   const {
@@ -75,19 +80,25 @@ const CreateNewAuction = () => {
   }, [isError]);
 
   const onSubmit = (data) => {
-    if (!endDate) {
-      showSnackbar("Please select an end date", "error");
-      return;
+    try{
+      if (!endDate) {
+        showSnackbar("Please select an end date", "error");
+        return;
+      }
+  
+      const formattedDate = endDate.toISOString();
+      const payload = {
+        priceStart: Number(data.priceStart),
+        endTime: formattedDate,
+        gemId: data.gemId,
+      };
+  
+      addAuction({ auction: payload });
+
+    }catch(err){
+      console.log(err.response.data)
+      showSnackbar(err?.response?.data?.message ||err?.message)
     }
-
-    const formattedDate = endDate.toISOString();
-    const payload = {
-      priceStart: Number(data.priceStart),
-      endTime: formattedDate,
-      gemId: data.gemId,
-    };
-
-    addAuction({ auction: payload });
   };
 
   if (gemsLoading) return <Typography>Loading gems...</Typography>;
@@ -107,7 +118,15 @@ const CreateNewAuction = () => {
             <Select
               labelId="gem-select-label"
               label="Select Gem"
-              {...register("gemId", { required: "Gem is required" })}
+              {...register("gemId", {
+                required: "Gem is required",
+                onChange: (e) => {
+                  const selectedGem = verifiedGem.find(
+                    (gem) => gem._id === e.target.value
+                  );
+                  setSelectedGem(selectedGem)
+                },
+              })}
             >
               {verifiedGem?.map((gem) => (
                 <MenuItem key={gem._id} value={gem._id}>
@@ -127,6 +146,17 @@ const CreateNewAuction = () => {
             margin="normal"
             label="Starting Price"
             type="number"
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Typography variant="caption" color="textSecondary">
+                      {selectedGem ? `Recommended Price by Expert: $${selectedGem?.price}`: ''}
+                    </Typography>
+                  </InputAdornment>
+                ),
+              },
+            }}
             {...register("priceStart", {
               required: "Starting price is required",
               min: { value: 0, message: "Price must be positive" },
@@ -135,23 +165,23 @@ const CreateNewAuction = () => {
             helperText={errors.priceStart?.message}
           />
           <Box marginY={2}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              label="Auction End Date & time"
-              value={endDate}
-              onChange={(newValue) => setEndDate(newValue)}
-              minDate={new Date()}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  margin="normal"
-                  error={!endDate && !!errors.endTime}
-                  helperText={!endDate ? "End date&time is required" : ""}
-                />
-              )}
-            />
-          </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Auction End Date & time"
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                minDate={new Date()}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    margin="normal"
+                    error={!endDate && !!errors.endTime}
+                    helperText={!endDate ? "End date&time is required" : ""}
+                  />
+                )}
+              />
+            </LocalizationProvider>
           </Box>
           <Box>
             <FormControlLabel

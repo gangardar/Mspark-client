@@ -36,6 +36,7 @@ import Unauthorized from "../component/common/Unauthorized";
 import GemListingTerms from "../component/Policies/GemListingTerms";
 import PrivacyPolicy from "../component/Policies/PrivacyPolicy";
 import CertificationGuide from "../component/Policies/CertificationGuide";
+import ForgotPassword from "../component/User/ForgotPassword";
 
 const route = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const route = createBrowserRouter([
       {
         path: "RegisterGem",
         element: <RegisterGem />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
       },
       {
         path: "auctions",

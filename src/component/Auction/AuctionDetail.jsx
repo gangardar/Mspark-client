@@ -27,6 +27,7 @@ import {
   History,
   Gavel,
   AttachMoney,
+  ImportContacts,
 } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import AuctionSkeleton from "./AuctionSkeleton";
@@ -34,10 +35,13 @@ import BidHistory from "./BidHistory";
 import moment from "moment";
 import useBid from "../../react-query/services/hooks/auctions/useBid";
 import SnackbarContext from "../../context/SnackbarContext";
-import AuthContext from "../../context/AuthContext";
-import { axiosInstance } from "../../react-query/services/apiClient";
+import { Link } from "react-router-dom";
+import useAuth from "../../context/useAuth";
+import { useSocket } from "../../context/SocketContext";
+import useAuctionById from "../../react-query/services/hooks/auctions/useAuctionById";
 
 const AuctionDetail = ({ auctionId }) => {
+  const {data : auctionData, isLoading: loadingAuction, refetch} = useAuctionById({id: auctionId});
   const [auction, setAuction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bidAmount, setBidAmount] = useState("");
@@ -46,32 +50,59 @@ const AuctionDetail = ({ auctionId }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [isWatching, setIsWatching] = useState(false);
   const backendLink = import.meta.env.VITE_API_URL;
-  const {isValid} = useContext(AuthContext);
-  const {
-    mutateAsync: doBid,
-    isError: isErrorBidding,
-    error: bidError,
-  } = useBid();
-  const {showSnackbar} = useContext(SnackbarContext);
+  const [image, setImage] = useState(null);
+  const { userData } = useAuth();
+  const { mutateAsync: doBid, error: bidError } = useBid();
+  const { showSnackbar } = useContext(SnackbarContext);
+  const socket = useSocket();
 
   useEffect(() => {
-    if(!isValid) return
+    if (!socket || !auction) return;
+
+    // Join auction room
+    socket.emit('joinAuction', auctionId);
+
+    // Listen for new bids
+    socket.on('newBid', (data) => {
+      showSnackbar(`New bid: $${data.bid.bidAmount} by ${data.bid.user.username}`);
+      refetch()
+      setAuction(prev => ({
+        ...prev,
+        currentPrice: data.currentPrice,
+        highestBidderId: {
+          _id: data.bid.user._id,
+          username: data.bid.user.username
+        },
+        bids: [data.bid, ...prev.bids]
+      }));
+    });
+
+    // Cleanup
+    return () => {
+      socket.emit('leaveAuction', auctionId);
+      socket.off('newBid');
+    };
+  }, [socket, auctionId, auction]);
+
+  useEffect(() => {
+    if(!auctionData) return;
+    setLoading(true);
     // Fetch auction data
     const fetchAuction = async () => {
       try {
-        const response = await axiosInstance.get(`/auctions/${auctionId}`)
-        const data = response.data
+        const data = auctionData;
         const formattedData = {
-          ...data.data,
+          ...data?.data,
           gemId: {
-            ...data.data.gemId,
+            ...data?.data?.gemId,
             images:
-              data.data.gemId?.images?.map((img) =>
+              data?.data?.gemId?.images?.map((img) =>
                 img.startsWith("http") ? img : `${backendLink}/${img}`
               ) || [],
           },
         };
         setAuction(formattedData);
+        setImage(formattedData?.gemId?.images[0]);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching auction:", error);
@@ -80,7 +111,7 @@ const AuctionDetail = ({ auctionId }) => {
     };
 
     fetchAuction();
-  }, [auctionId, backendLink, isValid]);
+  }, [auctionId, backendLink, auctionData]);
 
   useEffect(() => {
     // Countdown timer
@@ -110,22 +141,27 @@ const AuctionDetail = ({ auctionId }) => {
         id: auctionId,
         auction: { bidAmount: Number(bidAmount) },
       });
-      console.log(updatedBid)
+      const updatedBidData = updatedBid?.data;
 
       // Update auction state while preserving images
       setAuction((prev) => ({
-        ...updatedBid,
+        ...updatedBidData,
         gemId: {
-          ...updatedBid.gemId,
+          ...updatedBidData.gemId,
           images: prev?.gemId?.images || [], // Keep existing images
         },
-        bids: updatedBid.bids, // Update bids if needed
+        bids: updatedBidData.bids, // Update bids if needed
       }));
 
       setOpenBidDialog(false);
       setBidAmount("");
+      showSnackbar(updatedBid?.message);
     } catch (error) {
-    setOpenBidDialog(false)
+      setOpenBidDialog(false);
+      showSnackbar(
+        error?.response?.data?.message || "Error Submitting bid.",
+        "error"
+      );
       console.error("Error placing bid:", error);
     }
   };
@@ -142,6 +178,10 @@ const AuctionDetail = ({ auctionId }) => {
     return <AuctionSkeleton count={1} />;
   }
 
+  if (loadingAuction) {
+    return <AuctionSkeleton count={1} />;
+  }
+
   if (!auction) {
     return (
       <Container>
@@ -152,20 +192,16 @@ const AuctionDetail = ({ auctionId }) => {
     );
   }
 
-  if(isErrorBidding){
-    showSnackbar(bidError.message)
-  }
-
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid2 container spacing={4} sx={{ display: 'flex', flexWrap: 'wrap' }}>
+      <Grid2 container spacing={4} sx={{ display: "flex", flexWrap: "wrap" }}>
         {/* Left Column - Auction Images */}
-        <Grid2 xs={12} md={6} sx={{flexGrow: 1}}>
+        <Grid2 xs={12} md={6} sx={{ flexGrow: 1 }}>
           <Card>
             <CardMedia
               component="img"
               height="500"
-              image={auction.gemId.images[0]}
+              image={image}
               alt={auction.gemId.name}
               sx={{ objectFit: "contain" }}
             />
@@ -173,6 +209,7 @@ const AuctionDetail = ({ auctionId }) => {
               {auction.gemId.images.slice(0, 4).map((image, index) => (
                 <Box key={index} sx={{ mx: 1, cursor: "pointer" }}>
                   <img
+                    onClick={() => setImage(auction?.gemId?.images[index])}
                     src={image}
                     alt={`Thumbnail ${index + 1}`}
                     style={{ width: 60, height: 60, objectFit: "cover" }}
@@ -184,8 +221,8 @@ const AuctionDetail = ({ auctionId }) => {
         </Grid2>
 
         {/* Right Column - Auction Details */}
-        <Grid2 xs={12} md={6} sx={{flexGrow: 1}}>
-          <Box sx={{ mb: 3, maxWidth:'100%' }}>
+        <Grid2 xs={12} md={6} sx={{ flexGrow: 1 }}>
+          <Box sx={{ mb: 3, maxWidth: "100%" }}>
             <Typography variant="h4" component="h1" gutterBottom>
               {auction.gemId.name}
             </Typography>
@@ -247,17 +284,32 @@ const AuctionDetail = ({ auctionId }) => {
 
           {/* Bid Actions */}
           <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              startIcon={<AttachMoney />}
-              onClick={() => setOpenBidDialog(true)}
-              fullWidth
-              disabled={auction.status !== "active"}
-            >
-              Place Bid
-            </Button>
+            {bidError?.response?.data?.message === "No Address Found" ? (
+              <Button
+                variant="contained"
+                component={Link}
+                to={`/dashboard/${userData.username || ''}/profile`}
+                color="primary"
+                size="large"
+                startIcon={<ImportContacts/>}
+                fullWidth
+              >
+                Enter Address
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                startIcon={<AttachMoney />}
+                onClick={() => setOpenBidDialog(true)}
+                fullWidth
+                disabled={auction.status !== "active"}
+              >
+                Place Bid
+              </Button>
+            )}
+
             <IconButton
               color={isWatching ? "error" : "default"}
               onClick={handleWatchToggle}

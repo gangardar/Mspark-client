@@ -16,16 +16,15 @@ import { useContext, useEffect, useState } from "react";
 import { axiosInstance } from "../../react-query/services/apiClient";
 import SnackbarContext from "../../context/SnackbarContext";
 import useCreateWallet from "../../react-query/services/hooks/wallet/useCreateWallet";
+import PropTypes from "prop-types";
 
-const AddWalletForm = () => {
+const AddWalletForm = ({ refetch }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [currencies, setCurrencies] = useState([]);
   const { showSnackbar } = useContext(SnackbarContext);
-  const {
-    mutateAsync: createWallet
-  } = useCreateWallet();
+  const { mutateAsync: createWallet } = useCreateWallet();
   const [validationState, setValidationState] = useState({
     loading: false,
     valid: null,
@@ -126,12 +125,16 @@ const AddWalletForm = () => {
     try {
       await createWallet({ wallet: data })
         .then((res) => {
-          showSnackbar(res?.data?.message);
+          showSnackbar(res?.data?.data?.message);
           setSuccess("Wallet added successfully!");
           reset();
+          refetch();
         })
         .catch((res) =>
-          showSnackbar(res?.data?.message || "Something went wrong!", "error")
+          showSnackbar(
+            res?.data?.data?.message || "Something went wrong!",
+            "error"
+          )
         );
     } catch (err) {
       setError(err.message || "Failed to add wallet");
@@ -177,6 +180,9 @@ const AddWalletForm = () => {
     <Box sx={{ maxWidth: "800", mx: "auto" }}>
       <Card>
         <CardHeader title="Add New Wallet" />
+        {<Typography color="error" variant="caption" gutterBottom>
+          This is an optional for bidders untill bidder request refund.(Note Bidders)
+        </Typography>}
         <Divider />
         <CardContent sx={{ flexGrow: 1 }}>
           {error && (
@@ -321,6 +327,9 @@ const AddWalletForm = () => {
         <CardHeader title="Wallet Verification" />
         <Divider />
         <CardContent>
+          <Typography variant="body2" color="error">
+            You will not be able to change the wallet info.
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Please ensure the wallet address is correct before submitting. We
             will verify the wallet ownership before activation.
@@ -329,6 +338,10 @@ const AddWalletForm = () => {
       </Card>
     </Box>
   );
+};
+
+AddWalletForm.propTypes = {
+  refetch: PropTypes.func.isRequired,
 };
 
 export default AddWalletForm;

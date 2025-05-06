@@ -9,10 +9,11 @@ import MsparkInfoCard from "./MsparkInfoCard";
 import AddressCard from "../../User/AddressCard";
 import AccountsTable from "./AccountsTable";
 import Register from "../../Register";
+import MsparkSettings from "./MsparkSettings";
 
 function MsparkDetails() {
   const [tabValue, setTabValue] = useState(0);
-  const { data: mspark, isLoading, isError, error } = useMspark();
+  const { data: mspark, isLoading, isError, error, refetch } = useMspark();
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -61,6 +62,7 @@ function MsparkDetails() {
       {tabValue === 1 && <AddressCard mspark={mspark.data} />}
       {tabValue === 2 && <WalletOperations mspark={mspark.data} />}
       {tabValue === 3 && <Register role="admin"/>}
+      {tabValue === 4 && <MsparkSettings mspark={mspark?.data} refetch={refetch}/>}
     </Box>
   );
 }

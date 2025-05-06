@@ -16,8 +16,9 @@ import { useContext, useState } from "react";
 import SnackbarContext from "../../context/SnackbarContext";
 import useAddAddress from "../../react-query/services/hooks/users/useAddAddress";
 import { countryList } from "../../resources/countryList";
+import PropTypes from "prop-types";
 
-const AddressForm = () => {
+const AddressForm = ({refetch}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -39,9 +40,10 @@ const AddressForm = () => {
     try {
       await createAddress({ address: data })
         .then((res) => {
-          showSnackbar(res?.data?.message);
+          showSnackbar(res?.data?.data?.message);
           setSuccess("Address added successfully!");
           reset();
+          refetch();
         })
         .catch((err) => {
           showSnackbar(
@@ -153,11 +155,11 @@ const AddressForm = () => {
                   label="Postal Code"
                   {...register("postalcode", {
                     required: "Postal code is required",
-                    min : {
+                    minLength : {
                       value : 5,
                       message: "Postal code should be between 5 - 9"
                     },
-                    max : {
+                    maxLength : {
                       value : 9,
                       message: "Postal code should be between 5 - 9 numbers"
                     }
@@ -234,5 +236,9 @@ const AddressForm = () => {
     </Box>
   );
 };
+
+AddressForm.propTypes = {
+  refetch : PropTypes.func.isRequired
+}
 
 export default AddressForm;

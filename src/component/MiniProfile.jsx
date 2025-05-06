@@ -1,11 +1,20 @@
 import { Box, Grid2, Typography } from '@mui/material';
 import { jwtDecode } from 'jwt-decode';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import AuthContext from '../context/AuthContext';
 
 const ProfileCard = () => {
   const{logout} = useContext(AuthContext);
   const decodedToken = jwtDecode(localStorage.getItem('token'));
+  const BASE_URL = import.meta.env.VITE_API_URL
+
+  const profileImageUrl = useMemo(() => {
+    return decodedToken.profile?.startsWith("http")
+      ? decodedToken.profile
+      : `${BASE_URL}/${decodedToken.profile}`;
+  }, [decodedToken.profile, BASE_URL]);
+  console.log(profileImageUrl);
+
   const handleLogout = () => {
     logout()
   }
@@ -22,9 +31,9 @@ const ProfileCard = () => {
             }}
           >
             <img
-              src="/src/resources/exampleProfile.jpeg"
+              src={decodedToken?.profile ? profileImageUrl : "/src/resources/exampleProfile.jpeg"}
               alt="Profile Picture"
-              style={{ width: '100%', height: '100%', objectFit: 'fit' }}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           </Box>
         </Grid2>

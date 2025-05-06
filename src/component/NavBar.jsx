@@ -62,8 +62,9 @@ const getNavItems = (role, username) => {
   ];
 
   const roleSpecificItems = {
-    admin: [{ to: "/admin", label: "Admin Panel" },
-      { to: `/admin/profile`, label: "Account & Settings"},
+    admin: [
+      { to: "/admin", label: "Admin Panel" },
+      { to: `/admin/profile`, label: "Account & Settings" },
     ],
     merchant: [
       { to: `/dashboard/${username}/gem/all`, label: "Gems" },
@@ -97,7 +98,7 @@ const Navbar = () => {
 
   return (
     <>
-    <Auth loginModal={loginModal} setLoginModal={setLoginModal}/>
+      <Auth loginModal={loginModal} setLoginModal={setLoginModal} />
       <AppBar position="static" sx={{ position: "fixed" }}>
         <Toolbar sx={{ flexDirection: { xs: "row" } }}>
           {/* Mobile menu button */}
@@ -134,7 +135,7 @@ const Navbar = () => {
 
           {/* Auth component */}
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <AuthButton setLoginModal={setLoginModal}/>
+            <AuthButton setLoginModal={setLoginModal} />
           </Box>
         </Toolbar>
       </AppBar>
@@ -147,23 +148,57 @@ const Navbar = () => {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: "flex", md: "none" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 250 },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: 250,
+          },
         }}
       >
         <Box
-          sx={{ width: 250 }}
+          sx={{
+            width: "100%",
+            height: "100%", // Ensure full height
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
           role="presentation"
           onClick={handleDrawerToggle}
           onKeyDown={handleDrawerToggle}
         >
-          <List>
+          {/* Top Section - Navigation Items */}
+          <List sx={{ p: 2 }}>
             {navItems.map((item) => (
-              <ListItem button key={item.to} component={NavLink} to={item.to}>
+              <ListItem
+                button
+                key={item.to}
+                component={NavLink}
+                to={item.to}
+                sx={{
+                  borderRadius: 1,
+                  mb: 1,
+                  "&.active": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              >
                 <ListItemText primary={item.label} />
               </ListItem>
             ))}
-            <ListItem>
-              <AuthButton setLoginModal={setLoginModal}/>
+          </List>
+
+          {/* Bottom Section - Profile/Auth Button */}
+          <List>
+            <ListItem
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                pt: 2,
+                borderTop: 1,
+                borderColor: "divider",
+              }}
+            >
+              <AuthButton setLoginModal={setLoginModal} fullWidth />
             </ListItem>
           </List>
         </Box>
