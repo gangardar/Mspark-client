@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import ApiClient from "../../apiClient";
+import { axiosInstance } from "../../apiClient";
 
-const gemApiClient = new ApiClient('/gems');
-
-const useGem = (page, limit) => {
+const useGem = ({ page = 1, limit = 10, status = "all" }= {}) => {
   return useQuery({
-    queryKey: ['gems', page, limit], // Unique key for the query
-    queryFn: () => gemApiClient.getActiveData({ queryKey: [{ page, limit }] }), // Pass an array of objects
+    queryKey: ["gems", page, limit, status], // Unique key for the query
+    queryFn: async () => {
+      const response = await axiosInstance.get("/gems/", {
+        params: { page, limit, status },
+      });
+      return response.data;
+    },
   });
 };
 

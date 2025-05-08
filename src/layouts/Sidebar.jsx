@@ -159,84 +159,84 @@ const Sidebar = () => {
             </StyledListItem>
           </Tooltip>
           <Collapse in={openUser && !collapsed} timeout="auto" unmountOnExit>
-  <List component="div" disablePadding>
-    {/* All Users */}
-    <Tooltip title="All Users" placement="right">
-      <StyledListItem
-        button
-        component={Link}
-        to="/admin/users/all"
-        selected={isActive("/admin/users/all")}
-        sx={{ 
-          pl: collapsed ? 2 : 4,
-          justifyContent: collapsed ? 'center' : 'flex-start'
-        }}
-      >
-        <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : '56px' }}>
-          <ListAlt />
-        </ListItemIcon>
-        {!collapsed && <ListItemText primary="All Users" />}
-      </StyledListItem>
-    </Tooltip>
+            <List component="div" disablePadding>
+              {/* All Users */}
+              <Tooltip title="All Users" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to="/admin/users/all"
+                  selected={isActive("/admin/users/all")}
+                  sx={{
+                    pl: collapsed ? 2 : 4,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: collapsed ? "auto" : "56px" }}>
+                    <ListAlt />
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary="All Users" />}
+                </StyledListItem>
+              </Tooltip>
 
-    {/* Admin */}
-    <Tooltip title="Admin" placement="right">
-      <StyledListItem
-        button
-        component={Link}
-        to="/admin/users/admin"
-        selected={isActive("/admin/users/admin")}
-        sx={{ 
-          pl: collapsed ? 2 : 4,
-          justifyContent: collapsed ? 'center' : 'flex-start'
-        }}
-      >
-        <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : '56px' }}>
-          <AdminPanelSettings /> {/* Different icon for admin */}
-        </ListItemIcon>
-        {!collapsed && <ListItemText primary="Admin" />}
-      </StyledListItem>
-    </Tooltip>
+              {/* Admin */}
+              <Tooltip title="Admin" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to="/admin/users/admin"
+                  selected={isActive("/admin/users/admin")}
+                  sx={{
+                    pl: collapsed ? 2 : 4,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: collapsed ? "auto" : "56px" }}>
+                    <AdminPanelSettings /> {/* Different icon for admin */}
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary="Admin" />}
+                </StyledListItem>
+              </Tooltip>
 
-    {/* Merchants */}
-    <Tooltip title="Merchants" placement="right">
-      <StyledListItem
-        button
-        component={Link}
-        to="/admin/users/merchants"
-        selected={isActive("/admin/users/merchants")}
-        sx={{ 
-          pl: collapsed ? 2 : 4,
-          justifyContent: collapsed ? 'center' : 'flex-start'
-        }}
-      >
-        <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : '56px' }}>
-          <Store /> {/* Different icon for merchants */}
-        </ListItemIcon>
-        {!collapsed && <ListItemText primary="Merchants" />}
-      </StyledListItem>
-    </Tooltip>
+              {/* Merchants */}
+              <Tooltip title="Merchants" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to="/admin/users/merchants"
+                  selected={isActive("/admin/users/merchants")}
+                  sx={{
+                    pl: collapsed ? 2 : 4,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: collapsed ? "auto" : "56px" }}>
+                    <Store /> {/* Different icon for merchants */}
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary="Merchants" />}
+                </StyledListItem>
+              </Tooltip>
 
-    {/* Bidders */}
-    <Tooltip title="Bidders" placement="right">
-      <StyledListItem
-        button
-        component={Link}
-        to="/admin/users/bidders"
-        selected={isActive("/admin/users/bidders")}
-        sx={{ 
-          pl: collapsed ? 2 : 4,
-          justifyContent: collapsed ? 'center' : 'flex-start'
-        }}
-      >
-        <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : '56px' }}>
-          <Gavel /> {/* Different icon for bidders */}
-        </ListItemIcon>
-        {!collapsed && <ListItemText primary="Bidders" />}
-      </StyledListItem>
-    </Tooltip>
-  </List>
-</Collapse>
+              {/* Bidders */}
+              <Tooltip title="Bidders" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to="/admin/users/bidders"
+                  selected={isActive("/admin/users/bidders")}
+                  sx={{
+                    pl: collapsed ? 2 : 4,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: collapsed ? "auto" : "56px" }}>
+                    <Gavel /> {/* Different icon for bidders */}
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary="Bidders" />}
+                </StyledListItem>
+              </Tooltip>
+            </List>
+          </Collapse>
 
           {/* Gems Section */}
           <Tooltip
@@ -423,6 +423,20 @@ const Sidebar = () => {
                     <Cancel />
                   </ListItemIcon>
                   <ListItemText primary="Failed Payments" />
+                </StyledListItem>
+              </Tooltip>
+              <Tooltip title="Pending Merchants" placement="right">
+                <StyledListItem
+                  button
+                  component={Link}
+                  to={`/admin/payment/yetToSend`}
+                  selected={isActive(`/admin/payment/yetToSend`)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemIcon>
+                    <ListAlt />
+                  </ListItemIcon>
+                  <ListItemText primary="Pending Merchants" />
                 </StyledListItem>
               </Tooltip>
             </List>

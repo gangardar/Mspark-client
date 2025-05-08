@@ -93,7 +93,7 @@ const Home = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image="src/resources/ruby1.jpeg"
+                image="src/resources/Ruby1.jpeg"
                 alt="Ruby 1"
               />
               <CardContent>
@@ -143,7 +143,7 @@ const Home = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image="src/resources/ruby2.jpeg"
+                image="src/resources/Ruby2.jpeg"
                 alt="Ruby 2"
               />
               <CardContent>

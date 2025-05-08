@@ -36,24 +36,17 @@ const AddressForm = ({refetch}) => {
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
-
+  
     try {
-      await createAddress({ address: data })
-        .then((res) => {
-          showSnackbar(res?.data?.data?.message);
-          setSuccess("Address added successfully!");
-          reset();
-          refetch();
-        })
-        .catch((err) => {
-          showSnackbar(
-            err?.response?.data?.message || "Something went wrong!",
-            "error"
-          );
-          setError(err?.response?.data?.message || "Failed to add address");
-        });
+      const res = await createAddress({ address: data });
+      showSnackbar(res?.message);
+      setSuccess("Address added successfully!!");
+      reset();
+      await refetch(); // if refetch is async
     } catch (err) {
-      setError(err.message || "Failed to add address");
+      const errorMessage = err?.response?.data?.message || "Failed to add address";
+      showSnackbar(errorMessage, "error");
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

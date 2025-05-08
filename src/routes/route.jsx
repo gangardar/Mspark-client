@@ -37,6 +37,7 @@ import GemListingTerms from "../component/Policies/GemListingTerms";
 import PrivacyPolicy from "../component/Policies/PrivacyPolicy";
 import CertificationGuide from "../component/Policies/CertificationGuide";
 import ForgotPassword from "../component/User/ForgotPassword";
+import PendingPaymentsView from "../component/Payment/PendingPaymentsView";
 
 const route = createBrowserRouter([
   {
@@ -84,6 +85,14 @@ const route = createBrowserRouter([
         element: <GemPage />,
       },
       {
+        path: "gems/verified",
+        element: <GemPage status={'verified'}/>,
+      },
+      {
+        path: "gems/sold",
+        element: <GemPage status={'sold'}/>,
+      },
+      {
         path: "gems/assigned",
         element: <AssignedGemPage />,
       },
@@ -109,6 +118,10 @@ const route = createBrowserRouter([
       {
         path: "payment/failed",
         element: <AllPaymentsPage status={"failed"} />,
+      },
+      {
+        path: "payment/yetToSend",
+        element: <PendingPaymentsView />,
       },
       // Admin Delivery Routes
       {

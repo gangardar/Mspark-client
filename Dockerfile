@@ -1,37 +1,17 @@
-# syntax=docker/dockerfile:1
+# Use the official Node.js image
+FROM node:22-alpine
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
+WORKDIR /app
 
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm install
 
-ARG NODE_VERSION=22
+# Copy the rest of the application files
+COPY . ./
 
-FROM node:${NODE_VERSION}-alpine
-
-# Use production node environment by default.
-ENV NODE_ENV development
-
-
-WORKDIR /usr/src/app
-
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.npm to speed up subsequent builds.
-# Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
-# into this layer.
-COPY *.json .
-
-RUN npm i
-
-# Run the application as a non-root user.
-# USER node
-
-# Copy the rest of the source files into the image.
-COPY . .
-
-# Expose the port that the application listens on.
+# Expose the port Vite uses in development
 EXPOSE 5173
 
-# Run the application.
-CMD npm run dev
+# Run Vite in development mode
+CMD ["npm", "run", "dev"]

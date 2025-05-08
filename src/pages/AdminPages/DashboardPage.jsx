@@ -1,6 +1,10 @@
+import MainDashboardAdmin from "../../component/Admin/Dashboard/MainDashboardAdmin"
+
 const DashboardPage = () => {
   return (
-    <div>DashboardPage</div>
+    <>
+      <MainDashboardAdmin/>
+    </>
   )
 }
 

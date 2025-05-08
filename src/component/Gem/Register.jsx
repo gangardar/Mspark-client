@@ -644,15 +644,15 @@ const Register = () => {
                   <span>
                     I confirm my gem matches the entered details as well as image and
                     accept the{" "}
-                    <Link href="/privacy-policy" target="_blank">
+                    <Link to="/privacy-policy" target="_blank">
                       Privacy Policy
                     </Link>{" "}
                     and{" "}
-                    <Link href="/gem-listing-terms" target="_blank">
+                    <Link to="/gem-listing-terms" target="_blank">
                       Gem Listing Terms
                     </Link>{" "}
                     and{" "}
-                    <Link href="/certification-guide" target="_blank">
+                    <Link to="/certification-guide" target="_blank">
                       Certification Guide
                     </Link>
                     .

@@ -64,7 +64,6 @@ const getNavItems = (role, username) => {
   const roleSpecificItems = {
     admin: [
       { to: "/admin", label: "Admin Panel" },
-      { to: `/admin/profile`, label: "Account & Settings" },
     ],
     merchant: [
       { to: `/dashboard/${username}/gem/all`, label: "Gems" },

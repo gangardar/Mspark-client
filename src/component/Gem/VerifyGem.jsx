@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Autocomplete,
 } from "@mui/material";
 import { gems } from "./gemTypes";
 import { AddPhotoAlternate, Cancel, Close } from "@mui/icons-material";
@@ -36,9 +37,7 @@ const VerifyGem = (id) => {
     register,
     setValue,
     formState: { errors, isDirty, isValid },
-  } = useForm({
-    defaultValues: gemData,
-  });
+  } = useForm();
   const [images, setImages] = useState([]);
 
   // Set form values when gemData is fetched
@@ -416,22 +415,22 @@ const VerifyGem = (id) => {
                   sx={{ flex: "1 1 48%" }}
                 />
 
-                <TextField
-                  label="Type"
-                  select
-                  variant="outlined"
+                <Autocomplete
+                  freeSolo
+                  options={gems?.map((gem) => gem.name) || []}
                   defaultValue="unknown"
-                  {...register("type", { required: "Type is required" })}
-                  error={!!errors.type}
-                  helperText={errors.type?.message}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Type"
+                      variant="outlined"
+                      {...register("type", { required: "Type is required" })}
+                      error={!!errors.type}
+                      helperText={errors.type?.message}
+                    />
+                  )}
                   sx={{ flex: "1 1 48%" }}
-                >
-                  {gems?.map((gem) => (
-                    <MenuItem key={gem.name} value={gem.name}>
-                      {gem.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                />
               </Box>
 
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -713,7 +712,7 @@ const VerifyGem = (id) => {
                 </>
               )}
               <Grid2 container size={{ xs: 12 }} spacing={2}>
-                <Grid2 size={{xs:12, sm : 6}}>
+                <Grid2 size={{ xs: 12, sm: 6 }}>
                   <Button
                     type="submit"
                     variant="contained"
@@ -724,7 +723,7 @@ const VerifyGem = (id) => {
                     Submit
                   </Button>
                 </Grid2>
-                <Grid2 size={{xs:12, sm : 6}}>
+                <Grid2 size={{ xs: 12, sm: 6 }}>
                   <Button
                     variant="contained"
                     onClick={() => {

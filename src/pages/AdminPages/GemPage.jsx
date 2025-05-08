@@ -6,8 +6,9 @@ import { useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import { Typography } from "@mui/material";
 import SnackbarContext from "../../context/SnackbarContext";
+import PropTypes from "prop-types";
 
-const GemPage = () => {
+const GemPage = ({status}) => {
   const { isValid } = useContext(AuthContext);
   const {showSnackbar} = useContext(SnackbarContext)
 
@@ -34,7 +35,7 @@ const GemPage = () => {
     isError: isAdminError,
     error: adminError,
     refetch
-  } = useGem(1, 10, {
+  } = useGem({page: 1, limit: 10, status}, {
     enabled: isAdmin, // Only fetch if the user is an admin
   });
 
@@ -66,5 +67,9 @@ const GemPage = () => {
     </div>
   );
 };
+
+GemPage.propTypes = {
+  status : PropTypes.string
+}
 
 export default GemPage;

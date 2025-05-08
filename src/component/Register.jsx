@@ -151,7 +151,7 @@ const Register = ({ role = "bidder", setLoginTab }) => {
           label={
             <span>
               I agree to the{" "}
-              <Link href="/privacy-policy" target="_blank">
+              <Link to="/privacy-policy" target="_blank">
                 Privacy Policy
               </Link>{" "}
               and acknowledge MSPARK collects my data to verify identity and
@@ -165,7 +165,7 @@ const Register = ({ role = "bidder", setLoginTab }) => {
           label={
             <span>
               I allow MSPARK to inspect and certify my gem using advanced tools (spectroscopy, microscopy). 
-              <Link href="/certification-guide" target="_blank">Learn how we certify</Link>.
+              <Link to="/certification-guide" target="_blank">Learn how we certify</Link>.
             </span>
           }
         />

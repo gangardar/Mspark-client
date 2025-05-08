@@ -4,7 +4,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import Register from "./Register";
-import Login from "./login";
+import Login from "./Login";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 

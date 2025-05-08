@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
-export const LoadingSpinner = ({message}) => (
+export const LoadingSpinner = ({message = "Loading..."}) => (
   <Box
     sx={{
       display: 'flex',
@@ -24,5 +24,5 @@ export const LoadingSpinner = ({message}) => (
 );
 
 LoadingSpinner.propTypes = {
-    message : PropTypes.string.isRequired
+    message : PropTypes.string
 }

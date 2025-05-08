@@ -72,7 +72,7 @@ export const PaymentTable = ({ paymentStatus = "paid", bidderId }) => {
   const [userData, setUserData] = useState(null);
   const { isValid } = useContext(AuthContext);
   const { showSnackbar } = useContext(SnackbarContext);
-  const { mutateAsync: retryPayment } = usePaymentRetry();
+  const { mutateAsync: retryPayment, isPending : retrying } = usePaymentRetry();
 
   useEffect(() => {
     if (!isValid?.status || !isValid?.token) return;
@@ -98,7 +98,7 @@ export const PaymentTable = ({ paymentStatus = "paid", bidderId }) => {
     return <LoadingSpinner message="Authenticating..." />;
   }
 
-  if (isLoading || isFetching) {
+  if (isLoading || isFetching || retrying) {
     return <LoadingSpinner message="Loading Payments..." />;
   }
 
@@ -128,23 +128,22 @@ export const PaymentTable = ({ paymentStatus = "paid", bidderId }) => {
     setSelectedPayment(null);
   };
 
-  const handlePaymentRetry = async() => {
-    if (selectedPayment) {
-      await retryPayment({ auctionId: selectedPayment?.auction?._id })
-        .then((res) => {
-          showSnackbar(res?.message || "Retried successfully");
-          if (res?.paymentLink) {
-            window.open(res.paymentLink, "_blank").focus();
-          }
-          refetch();
-        })
-        .catch((err) => {
-          console.log(err)
-          showSnackbar(
-            err?.response?.data?.message || err?.message || "Failed to retry payment",
-            "error"
-          );
-        });
+  const handlePaymentRetry = async () => {
+    if (!selectedPayment) return;
+    
+    try {
+      const res = await retryPayment({ auctionId: selectedPayment.auction._id });
+      showSnackbar(res?.message || "Retried successfully");
+      if (res?.paymentLink) {
+        window.open(res.paymentLink, "_blank").focus();
+      }
+      refetch();
+    } catch (err) {
+      console.log(err);
+      showSnackbar(
+        err?.response?.data?.message || err?.message || "Failed to retry payment",
+        "error"
+      );
     }
   };
 
